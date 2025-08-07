@@ -1,0 +1,97 @@
+/* src/App.css - Definitive Final Version */
+:root { --primary-action-color: #4b0082; --income-color: #008000; --expense-color: #FF0000; }
+/* This is the corrected line */
+body { background-color: #f4f4f8; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; display: flex; justify-content: center; color: #333; padding: 20px; }
+.app-container { background-color: #fff; padding: 20px 30px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); width: 100%; max-width: 900px; position: relative; transition: background-color 0.3s ease; }
+main { min-height: 60vh; }
+.page-content { padding-top: 20px; }
+.login-container { text-align: center; padding: 40px; }
+.loading-container { display: flex; align-items: center; justify-content: center; height: 80vh; }
+.login-title { font-family: 'Pacifico', cursive; font-size: 2.5em; color: #333; }
+.login-btn { background-color: #ff1493; color: white; border: none; padding: 12px 24px; font-size: 1.2em; border-radius: 5px; cursor: pointer; margin-top: 20px; }
+h3 { border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px; }
+
+.main-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 2px solid #f0f0f0; margin-bottom: 25px; }
+.header-title { font-family: 'Pacifico', cursive; font-size: 2.2em; margin: 0; color: #2c3e50; }
+.burger-menu-container { position: relative; }
+.burger-menu { cursor: pointer; display: flex; flex-direction: column; gap: 4px; padding: 5px; }
+.burger-line { width: 25px; height: 3px; background-color: #34495e; border-radius: 2px; }
+.dropdown-menu { position: absolute; top: 40px; right: 0; background-color: #E6E6FA; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); padding: 10px; z-index: 100; display: flex; flex-direction: column; border: 1px solid #d1d1f5; width: 220px; }
+.dropdown-menu a { padding: 12px 20px; text-decoration: none; color: #34495e; border-radius: 5px; }
+.dropdown-menu a:hover, .dropdown-menu a.active { background-color: #d1d1f5; }
+.menu-user-info { padding: 12px 20px; font-size: 0.9em; border-bottom: 1px solid #d1d1f5; margin-bottom: 5px; }
+.signout-btn-menu { background: none; border: none; color: var(--expense-color); padding: 12px 20px; text-align: left; cursor: pointer; font-size: 1em; font-weight: bold; }
+.signout-btn-menu:hover { background-color: #d1d1f5; }
+
+.transaction-form { display: flex; flex-direction: column; gap: 15px; margin-bottom: 30px; }
+.form-control { display: flex; flex-direction: column; }
+.form-control label { margin-bottom: 5px; font-weight: bold; }
+.form-control input, .form-control select { padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 1em; width: 100%; box-sizing: border-box; }
+.transaction-form button { background-color: var(--primary-action-color); color: white; border: none; padding: 12px; border-radius: 5px; font-size: 1.1em; font-weight: bold; cursor: pointer; transition: background-color 0.2s ease; }
+.transaction-form button:hover { background-color: #3a0066; }
+.form-buttons { display: flex; gap: 10px; }
+.form-buttons button { flex-grow: 1; }
+.cancel-btn { background-color: #7f8c8d; }
+.cancel-btn:hover { background-color: #6c7a7d; }
+.checkbox-control { flex-direction: row; align-items: center; gap: 5px; justify-content: flex-start; }
+.checkbox-control input[type="checkbox"] { width: 20px; height: 20px; }
+
+.filter-controls { display: flex; flex-wrap: wrap; gap: 15px; align-items: center; margin-bottom: 20px; }
+.tabs { display: flex; border-bottom: 2px solid #eee; }
+.tabs button { padding: 10px 20px; border: none; background-color: transparent; cursor: pointer; font-size: 1em; color: #555; border-bottom: 3px solid transparent; margin-bottom: -2px; }
+.tabs button.active { color: var(--primary-action-color); border-bottom-color: var(--primary-action-color); }
+.view-switcher { border-bottom: none; justify-content: center; margin-bottom: 25px; }
+
+.custom-select-wrapper { position: relative; width: 100%; display: flex; flex-direction: column; }
+.custom-select-wrapper label { margin-bottom: 5px; font-weight: bold; }
+.custom-select-wrapper select { -webkit-appearance: none; -moz-appearance: none; appearance: none; background-color: #fff; border: 1px solid #ddd; border-radius: 5px; padding: 10px; font-size: 1em; width: 100%; cursor: pointer; background-image: none; }
+.custom-select-wrapper::after { content: '▼'; font-size: 12px; color: #555; position: absolute; right: 15px; top: 55%; transform: translateY(-50%); pointer-events: none; }
+
+.transaction-list { list-style-type: none; padding: 0; margin: 0; }
+.transaction-list li { position: relative; display: flex; justify-content: space-between; align-items: center; padding: 15px; border-radius: 8px; margin-bottom: 10px; }
+.transaction-details-wrapper { flex-grow: 1; display: flex; flex-direction: column; }
+.transaction-details { display: flex; justify-content: space-between; align-items: center; }
+.transaction-person { font-weight: bold; margin-right: 15px; min-width: 50px; }
+.transaction-meta { margin-top: 5px; display: flex; justify-content: space-between; align-items: flex-end; }
+.transaction-month { font-size: 0.8em; color: #444444; font-weight: bold; }
+.transaction-amount { font-weight: bold; font-size: 1.1em; white-space: nowrap; }
+.delete-btn { position: absolute; top: 5px; right: 5px; background-color: var(--expense-color); color: white; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-weight: bold; flex-shrink: 0; display: flex; align-items: center; justify-content: center; line-height: 1; padding: 0; font-size: 14px; }
+
+.presets-list { list-style: none; padding: 0; }
+.presets-list li { display: flex; justify-content: space-between; align-items: center; background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 10px; }
+.preset-info { display: flex; flex-direction: column; }
+.preset-description { font-weight: bold; }
+.preset-details { font-size: 0.9em; color: #555; }
+.preset-actions { display: flex; gap: 10px; align-items: center; }
+.edit-btn { background: white; border: 1px solid #bdc3c7; color: #555; padding: 4px 10px; font-size: 0.9em; }
+.delete-btn-preset { background-color: var(--expense-color); color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; line-height: 1; padding: 0; font-size: 14px; }
+
+.checklist { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.checklist li { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-radius: 5px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border-left: 5px solid; transition: all 0.2s ease; }
+.checklist li.logged { opacity: 0.7; }
+.checklist li.logged .preset-description { text-decoration: line-through; }
+.checklist-action { font-weight: bold; }
+.checklist-action button { color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; }
+.variable-input-group { display: flex; align-items: center; gap: 5px; }
+.variable-input-group input { background-color: #fff; width: 80px; padding: 8px; border: 1px solid #ddd; border-radius: 5px; }
+
+.top-balance-container { text-align: center; margin-bottom: 40px; }
+.top-balance-container h2 { font-weight: 400; color: #333; margin-bottom: 0; border-bottom: none; }
+.balance-large { font-size: 3.5em; font-weight: 700; margin-top: 5px; }
+.chart-container { width: 100%; max-width: 600px; height: 300px; margin: 0 auto; }
+
+.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+.modal-content { background-color: white; padding: 25px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); text-align: center; max-width: 400px; width: 90%; }
+.modal-content h4 { margin-top: 0; }
+.modal-actions { margin-top: 20px; display: flex; gap: 10px; justify-content: center; }
+.modal-actions button { padding: 10px 20px; border-radius: 5px; border: none; cursor: pointer; font-weight: bold; }
+.btn-secondary { background-color: var(--income-color); color: white; }
+.btn-danger { background-color: var(--expense-color); color: white; }
+
+/* --- MOBILE RESPONSIVENESS --- */
+@media (max-width: 768px) {
+  .presets-page-split, .page-content { flex-direction: column; }
+  .app-container { padding: 15px; }
+  .header-title { font-size: 1.8em; }
+  .input-section, .list-section { width: 100%; }
+}
