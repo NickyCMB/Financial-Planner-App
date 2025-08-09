@@ -1,3 +1,4 @@
+// src/App.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { Routes, Route, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import './App.css';
@@ -23,21 +24,8 @@ function App() {
   useEffect(() => { if (!user) return; let timer; const reset = () => { clearTimeout(timer); timer = setTimeout(() => { if (location.pathname !== '/') navigate('/'); }, 5 * 60 * 1000); }; const events = ['mousemove', 'keydown', 'click', 'scroll']; events.forEach(e => window.addEventListener(e, reset)); reset(); return () => { clearTimeout(timer); events.forEach(e => window.removeEventListener(e, reset)); }; }, [user, navigate, location.pathname]);
   useEffect(() => { if (!prevUser && user) { navigate('/'); } }, [user, prevUser, navigate]);
 
-  // --- DEBUGGING LOGS ---
-  if (user) {
-    console.log("--- Debugging Background Color ---");
-    console.log("1. Email from Google Login:", user.email);
-    console.log("2. Admin Email from config.js:", ADMIN_EMAIL);
-    console.log("3. Is user the admin?", isAdmin);
-  }
-  
   const loggedInPerson = user ? (isAdmin ? 'Nicky' : 'Alex') : null;
-  console.log("4. Calculated Person:", loggedInPerson);
-
   const appBackgroundColor = loggedInPerson ? PERSON_COLORS[loggedInPerson]?.background : '#f4f4f8';
-  console.log("5. Final Background Color:", appBackgroundColor);
-  console.log("---------------------------------");
-  // --- END DEBUGGING LOGS ---
 
   if (loading) { return <div className="loading-container"><h1>Loading App...</h1></div>; }
   if (!user) { return ( <div className="login-container"><h1 className="login-title">This is your financial planer</h1><p>to show you the money you have to</p><button className="login-btn" onClick={signInWithGoogle}>Sign in with Google</button></div> ); }

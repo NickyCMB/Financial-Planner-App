@@ -1,22 +1,17 @@
 :root { --primary-action-color: #4b0082; --income-color: #008000; --expense-color: #FF0000; }
 html, body, #root { height: 100%; margin: 0; padding: 0; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; display: flex; justify-content: center; color: #333; padding: 0; background-color: #f4f4f8; }
-.app-wrapper {
-  width: 100%;
-  min-height: 100vh; /* Make sure it's at least the full viewport height */
-  box-sizing: border-box;
-  transition: background-color 0.3s ease;
-}
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; color: #333; background-color: #f4f4f8; }
 
-.app-container {
-  width: 100%;
-  height: 100%;
-  box-sizing: border-box;
-  padding: 20px 30px;
-  position: relative;
-  /* Removed max-width, shadow, and radius to make it full screen */
+.app-wrapper { width: 100%; min-height: 100vh; box-sizing: border-box; display: flex; justify-content: center; align-items: flex-start; padding: 40px 20px; transition: background-color 0.3s ease; }
+.app-container { background-color: #fff; width: 100%; max-width: 900px; padding: 20px 30px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); position: relative; display: flex; flex-direction: column; }
+main { flex-grow: 1; display: flex; flex-direction: column; }
+.page-content { padding-top: 20px; flex-grow: 1; display: flex; flex-direction: column; }
+.login-container { text-align: center; padding: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
+.loading-container { display: flex; align-items: center; justify-content: center; height: 100%; }
+.page-content {
+  padding-top: 20px;
+  flex-grow: 1; /* This is the new line */
 }
-.page-content { padding-top: 20px; }
 .login-container { text-align: center; padding: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
 .loading-container { display: flex; align-items: center; justify-content: center; height: 100%; }
 .login-title { font-family: 'Pacifico', cursive; font-size: 2.5em; color: #333; }
@@ -184,4 +179,20 @@ h3 { border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px; }
   15% { opacity: 1; top: 20px; }
   85% { opacity: 1; top: 20px; }
   100% { opacity: 0; top: 0px; }
+}
+/* --- MOBILE RESPONSIVENESS --- */
+@media (max-width: 768px) {
+  .app-wrapper {
+    padding: 0;
+  }
+  .app-container {
+    padding: 15px;
+    border-radius: 0;
+    min-height: 100vh;
+    box-shadow: none;
+    border: none;
+  }
+  .header-title {
+    font-size: 1.8em;
+  }
 }
