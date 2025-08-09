@@ -1,4 +1,3 @@
-// src/App.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { Routes, Route, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import './App.css';
@@ -25,14 +24,14 @@ function App() {
   useEffect(() => { if (!prevUser && user) { navigate('/'); } }, [user, prevUser, navigate]);
 
   const loggedInPerson = user ? (isAdmin ? 'Nicky' : 'Alex') : null;
-  const appBackgroundColor = loggedInPerson ? PERSON_COLORS[loggedInPerson]?.background : '#f4f4f8';
+  const appBackgroundColor = loggedInPerson ? PERSON_COLORS[loggedInPerson]?.background : '#ffffff';
 
   if (loading) { return <div className="loading-container"><h1>Loading App...</h1></div>; }
   if (!user) { return ( <div className="login-container"><h1 className="login-title">This is your financial planer</h1><p>to show you the money you have to</p><button className="login-btn" onClick={signInWithGoogle}>Sign in with Google</button></div> ); }
 
   return (
-    <div className="app-wrapper" style={{ backgroundColor: appBackgroundColor }}>
-      <div className="app-container">
+    <div className="app-wrapper">
+      <div className="app-container" style={{ backgroundColor: appBackgroundColor }}>
         <header className="main-header">
           <h1 className="header-title">Finanzplaner</h1>
           <div className="burger-menu-container">

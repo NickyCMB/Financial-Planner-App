@@ -1,22 +1,46 @@
 :root { --primary-action-color: #4b0082; --income-color: #008000; --expense-color: #FF0000; }
-html, body, #root { height: 100%; margin: 0; padding: 0; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; color: #333; background-color: #f4f4f8; }
 
-.app-wrapper { width: 100%; min-height: 100vh; box-sizing: border-box; display: flex; justify-content: center; align-items: flex-start; padding: 40px 20px; transition: background-color 0.3s ease; }
-.app-container { background-color: #fff; width: 100%; max-width: 900px; padding: 20px 30px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); position: relative; display: flex; flex-direction: column; }
-main { flex-grow: 1; display: flex; flex-direction: column; }
-.page-content { padding-top: 20px; flex-grow: 1; display: flex; flex-direction: column; }
-.login-container { text-align: center; padding: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
-.loading-container { display: flex; align-items: center; justify-content: center; height: 100%; }
-.page-content {
-  padding-top: 20px;
-  flex-grow: 1; /* This is the new line */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
 }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  color: #333;
+  background-color: #f4f4f8;
+}
+
+/* For DESKTOP: A transparent wrapper that centers the content box */
+.app-wrapper {
+  width: 100%;
+  min-height: 100%;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 40px 20px;
+}
+
+/* The main content box that gets the color */
+.app-container {
+  width: 100%;
+  max-width: 900px;
+  padding: 20px 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  transition: background-color 0.3s ease;
+}
+
+main { flex-grow: 1; display: flex; flex-direction: column; }
+.page-content { flex-grow: 1; display: flex; flex-direction: column; }
 .login-container { text-align: center; padding: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
 .loading-container { display: flex; align-items: center; justify-content: center; height: 100%; }
 .login-title { font-family: 'Pacifico', cursive; font-size: 2.5em; color: #333; }
 .login-btn { background-color: #ff1493; color: white; border: none; padding: 12px 24px; font-size: 1.2em; border-radius: 5px; cursor: pointer; margin-top: 20px; }
-h3 { border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px; }
 .balance-title { font-size: 1.8em; }
 .main-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 2px solid #f0f0f0; margin-bottom: 10px; }
 .header-title { font-family: 'Pacifico', cursive; font-size: 2.2em; margin: 0; color: #2c3e50; }
