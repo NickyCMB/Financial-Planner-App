@@ -18,7 +18,6 @@ const TransactionsPage = () => {
 
     const openDeleteModal = (id) => { setTransactionToDelete(id); setIsModalOpen(true); };
     const handleDeleteTransaction = async () => { if (!user || !transactionToDelete) return; try { await deleteDoc(doc(db, 'users', HOUSEHOLD_ID, 'transactions', transactionToDelete)); } catch (error) { console.error("Error deleting document: ", error); } setIsModalOpen(false); setTransactionToDelete(null); };
-
     const uniqueMonths = [...new Set(transactions.map(t => { const d = t.createdAt.toDate(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`; }))];
     const allCategories = [...incomeCategories, ...expenseCategories];
     const filteredTransactions = transactions.filter(t => selectedMonth === 'All' || `${t.createdAt.toDate().getFullYear()}-${String(t.createdAt.toDate().getMonth() + 1).padStart(2, '0')}` === selectedMonth).filter(t => activeTab === 'All' || t.person === activeTab).filter(t => categoryFilter === 'All' || t.category === categoryFilter);

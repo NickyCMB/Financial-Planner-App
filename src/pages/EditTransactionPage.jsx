@@ -9,7 +9,6 @@ const EditTransactionPage = () => {
   const { transactionId } = useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
-
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
   const [type, setType] = useState('expense');
@@ -19,65 +18,11 @@ const EditTransactionPage = () => {
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
-    if (!user || !transactionId) return;
-    const getTransaction = async () => {
-      const docRef = doc(db, 'users', HOUSEHOLD_ID, 'transactions', transactionId);
-      const docSnap = await getDoc(docRef);
-
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        setDescription(data.description);
-        setAmount(data.amount.toString().replace('.', ','));
-        setType(data.type);
-        setPerson(data.person);
-        setCategory(data.category || '');
-        if (data.createdAt && data.createdAt.toDate) {
-          setDate(data.createdAt.toDate().toISOString().split('T')[0]);
-        }
-      } else {
-        alert("Transaction not found.");
-        navigate('/transactions');
-      }
-      setLoading(false);
-    };
-    getTransaction();
-  }, [transactionId, user, navigate]);
-
-  useEffect(() => {
-    if (loading) return;
-    if (type === 'income' && !incomeCategories.includes(category)) {
-      setCategory(incomeCategories[0]);
-    } else if (type === 'expense' && !expenseCategories.includes(category)) {
-      setCategory(expenseCategories[0]);
-    }
-  }, [type, category, loading]);
-
-  const handleUpdateTransaction = async (e) => {
-    e.preventDefault();
-    if (!user || !description || !amount) return;
-
-    setIsSubmitting(true);
-    try {
-      const docRef = doc(db, 'users', HOUSEHOLD_ID, 'transactions', transactionId);
-      await updateDoc(docRef, {
-        description,
-        amount: parseFloat(amount.replace(',', '.')),
-        type,
-        person,
-        category,
-        createdAt: new Date(date),
-      });
-      navigate('/transactions');
-    } catch (error) {
-      console.error("Error updating document: ", error);
-      alert("Fehler beim Aktualisieren der Transaktion.");
-      setIsSubmitting(false);
-    }
-  };
+  useEffect(() => { if (!user || !transactionId) return; const getTransaction = async () => { const docRef = doc(db, 'users', HOUSEHOLD_ID, 'transactions', transactionId); const docSnap = await getDoc(docRef); if (docSnap.exists()) { const data = docSnap.data(); setDescription(data.description); setAmount(data.amount.toString().replace('.', ',')); setType(data.type); setPerson(data.person); setCategory(data.category || ''); if (data.createdAt && data.createdAt.toDate) { setDate(data.createdAt.toDate().toISOString().split('T')[0]); } } else { alert("Transaction not found."); navigate('/transactions'); } setLoading(false); }; getTransaction(); }, [transactionId, user, navigate]);
+  useEffect(() => { if (loading) return; if (type === 'income' && !incomeCategories.includes(category)) { setCategory(incomeCategories[0]); } else if (type === 'expense' && !expenseCategories.includes(category)) { setCategory(expenseCategories[0]); } }, [type, category, loading]);
+  const handleUpdateTransaction = async (e) => { e.preventDefault(); if (!user || !description || !amount) return; setIsSubmitting(true); try { const docRef = doc(db, 'users', HOUSEHOLD_ID, 'transactions', transactionId); await updateDoc(docRef, { description, amount: parseFloat(amount.replace(',', '.')), type, person, category, createdAt: new Date(date), }); navigate('/transactions'); } catch (error) { console.error("Error updating document: ", error); alert("Fehler beim Aktualisieren der Transaktion."); setIsSubmitting(false); } };
 
   if (loading) return <div className="page-content"><p>Loading transaction...</p></div>;
-
   return (
     <div className="page-content">
       <form className="transaction-form" onSubmit={handleUpdateTransaction}>

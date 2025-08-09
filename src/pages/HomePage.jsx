@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useTransactions } from '../contexts/TransactionContext';
-import { useAuth } from '../contexts/AuthContext';
+import { useTransactions } from '../contexts/TransactionContext.jsx';
+import { useAuth } from '../contexts/AuthContext.jsx';
 import { householdMembers, ADMIN_EMAIL } from '../config.js';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
@@ -20,8 +20,7 @@ const HomePage = () => {
     const chartData = [{ name: 'Income', total: monthlyIncome, color: '#2ecc71' }, { name: 'Expense', total: monthlyExpense, color: '#e74c3c' }];
     const formatCurrency = (value) => `€${value.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
-    if (loading) return <p>Loading dashboard...</p>;
-    
+    if (loading) return <div className="page-content"><p>Loading dashboard...</p></div>;
     return (
         <div className="page-content">
             <div className="tabs view-switcher">{householdMembers.map(member => (<button key={member} className={viewingAs === member ? 'active' : ''} onClick={() => setViewingAs(member)}>{member}'s View</button>))}</div>

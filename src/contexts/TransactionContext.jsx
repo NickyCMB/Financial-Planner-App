@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import { db } from '../firebase';
+import { db } from '../firebase.js';
 import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
 import { useAuth } from './AuthContext.jsx';
 import { HOUSEHOLD_ID } from '../config.js';
@@ -13,7 +13,7 @@ export const TransactionProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (user) {
+    if (user && HOUSEHOLD_ID !== "PASTE_YOUR_USER_UID_HERE") {
       setLoading(true);
       const collectionRef = collection(db, 'users', HOUSEHOLD_ID, 'transactions');
       const q = query(collectionRef, orderBy('createdAt', 'desc'));

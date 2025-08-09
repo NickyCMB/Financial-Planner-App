@@ -1,12 +1,7 @@
-// src/contexts/NotificationContext.jsx
-
 import React, { createContext, useState, useContext, useCallback } from 'react';
 
 const NotificationContext = createContext();
-
-export const useNotification = () => {
-  return useContext(NotificationContext);
-};
+export const useNotification = () => useContext(NotificationContext);
 
 export const NotificationProvider = ({ children }) => {
   const [message, setMessage] = useState('');
@@ -18,12 +13,10 @@ export const NotificationProvider = ({ children }) => {
     setTimeout(() => {
       setIsVisible(false);
       setMessage('');
-    }, 3000); // The notification will disappear after 3 seconds
+    }, 3000);
   }, []);
 
-  const value = {
-    showNotification,
-  };
+  const value = { showNotification };
 
   return (
     <NotificationContext.Provider value={value}>

@@ -27,7 +27,7 @@ const ManagePresetsPage = () => {
     const resetForm = () => { setDescription(''); setAmount(''); setType('expense'); setPerson(householdMembers[0]); setCategory(expenseCategories[0]); setIsVariable(false); setEditingPresetId(null); };
     const handleEditClick = (preset) => { setEditingPresetId(preset.id); setDescription(preset.description); setAmount(preset.amount); setType(preset.type); setPerson(preset.person); setCategory(preset.category); setIsVariable(preset.isVariable); window.scrollTo({ top: 0, behavior: 'smooth' }); };
     const handleFormSubmit = async (e) => { e.preventDefault(); if (!description) { alert('Please enter a description.'); return; } const presetData = { description, amount: isVariable ? 0 : parseFloat(amount.replace(',', '.') || 0), type, person, category, isVariable, }; if (editingPresetId) { await updateDoc(doc(db, 'users', HOUSEHOLD_ID, 'presets', editingPresetId), presetData); } else { await addDoc(collection(db, 'users', HOUSEHOLD_ID, 'presets'), presetData); } resetForm(); };
-    
+
     const filteredPresets = presets.filter(p => p.person === personFilter);
 
     return (
@@ -46,7 +46,15 @@ const ManagePresetsPage = () => {
                     </form>
                 </section>
                 <section className="list-section">
-                    <div className="filter-controls"><div className="tabs">{householdMembers.map(member => (<button key={member} className={personFilter === member ? 'active' : ''} onClick={() => setPersonFilter(member)}>{member}'s Presets</button>))}</div></div>
+                    <div className="filter-controls">
+                        <div className="tabs">
+                            {householdMembers.map(member => (
+                                <button key={member} className={personFilter === member ? 'active' : ''} onClick={() => setPersonFilter(member)}>
+                                    {member}'s Presets
+                                </button>
+                            ))}
+                        </div>
+                    </div>
                     <h3>Your Saved Presets</h3>
                     <ul className="presets-list">
                         {filteredPresets.map(preset => (
