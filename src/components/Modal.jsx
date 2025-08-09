@@ -1,12 +1,7 @@
-// src/components/Modal.jsx
-
 import React from 'react';
 
 const Modal = ({ isOpen, onClose, onConfirm, title, children }) => {
-  if (!isOpen) {
-    return null;
-  }
-
+  if (!isOpen) return null;
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -20,5 +15,4 @@ const Modal = ({ isOpen, onClose, onConfirm, title, children }) => {
     </div>
   );
 };
-
 export default Modal;

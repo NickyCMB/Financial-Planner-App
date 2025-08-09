@@ -1,15 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTransactions } from '../contexts/TransactionContext';
 import { useAuth } from '../contexts/AuthContext';
-import { Link } from 'react-router-dom';
-import { householdMembers, USER_MAP } from '../config.js';
+import { householdMembers, ADMIN_EMAIL } from '../config.js';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
 const HomePage = () => {
     const { transactions, loading } = useTransactions();
     const { user } = useAuth();
-    const loggedInPerson = USER_MAP[user.email];
-    const [viewingAs, setViewingAs] = useState(loggedInPerson || householdMembers[0]);
+    const loggedInPerson = user.email === ADMIN_EMAIL ? 'Nicky' : 'Alex';
+    const [viewingAs, setViewingAs] = useState(loggedInPerson);
+
+    useEffect(() => { setViewingAs(loggedInPerson); }, [loggedInPerson]);
+
     const now = new Date();
     const currentMonthTransactions = transactions.filter(t => { const d = t.createdAt.toDate(); return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && t.person === viewingAs; });
     const monthlyIncome = currentMonthTransactions.filter(t => t.type === 'income').reduce((acc, t) => acc + t.amount, 0);
@@ -19,6 +21,7 @@ const HomePage = () => {
     const formatCurrency = (value) => `€${value.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
     if (loading) return <p>Loading dashboard...</p>;
+    
     return (
         <div className="page-content">
             <div className="tabs view-switcher">{householdMembers.map(member => (<button key={member} className={viewingAs === member ? 'active' : ''} onClick={() => setViewingAs(member)}>{member}'s View</button>))}</div>
