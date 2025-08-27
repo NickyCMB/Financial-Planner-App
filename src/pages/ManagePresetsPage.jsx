@@ -60,7 +60,7 @@ const ManagePresetsPage = () => {
                         {filteredPresets.map(preset => (
                             <li key={preset.id}>
                                 <div className="preset-info"><span className="preset-description">{preset.description}</span><span className="preset-details">{preset.category} - {preset.person} - {preset.isVariable ? 'Variable' : `€${preset.amount.toLocaleString('de-DE', {minimumFractionDigits: 2})}`}</span></div>
-                                <div className="preset-actions"><button className="edit-btn" onClick={() => handleEditClick(preset)}>✏️</button><button className="delete-btn-preset" onClick={() => openDeleteModal(preset.id)}>X</button></div>
+                                <div className="preset-actions"><button className="edit-btn" onClick={() => handleEditClick(preset)}>✏️</button><button className="delete-btn-preset" onClick={() => openDeleteModal(preset.id)}>🗑️</button></div>
                             </li>
                         ))}
                     </ul>

@@ -20,9 +20,8 @@ body {
   justify-content: center;
   align-items: flex-start;
   padding: 40px 20px;
+  transition: background-color 0.3s ease;
 }
-
-/* The main content box that gets the color */
 .app-container {
   width: 100%;
   max-width: 900px;
@@ -34,26 +33,43 @@ body {
   flex-direction: column;
   transition: background-color 0.3s ease;
 }
+main { 
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column; 
+}
+.page-content { 
+  padding-top: 20px;
+  flex-grow: 1; 
+  display: flex; 
+  flex-direction: column; 
+}
 
-main { flex-grow: 1; display: flex; flex-direction: column; }
-.page-content { flex-grow: 1; display: flex; flex-direction: column; }
+/* --- LOGIN & LOADING --- */
 .login-container { text-align: center; padding: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
 .loading-container { display: flex; align-items: center; justify-content: center; height: 100%; }
 .login-title { font-family: 'Pacifico', cursive; font-size: 2.5em; color: #333; }
-.login-btn { background-color: #ff1493; color: white; border: none; padding: 12px 24px; font-size: 1.2em; border-radius: 5px; cursor: pointer; margin-top: 20px; }
+.login-btn { background-color: #ff1493; color: rgb(0, 0, 0); border: none; padding: 12px 24px; font-size: 1.2em; border-radius: 5px; cursor: pointer; margin-top: 20px; }
 .balance-title { font-size: 1.8em; }
+
+/* --- HEADER & NAVIGATION --- */
 .main-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 2px solid #8197c5; margin-bottom: 10px; }
 .header-title { font-family: 'Pacifico', cursive; font-size: 2.2em; margin: 0; color: #08335f; }
+/* BURGER MENU */
 .burger-menu-container { position: relative; }
 .burger-menu { cursor: pointer; display: flex; flex-direction: column; gap: 4px; padding: 5px; }
 .burger-line { width: 25px; height: 3px; background-color: #000000; border-radius: 2px; }
+/* DROPDOWN MENU */
 .dropdown-menu { position: absolute; top: 40px; right: 0; background-color: #ebebeb; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); padding: 10px; z-index: 100; display: flex; flex-direction: column; border: 1px solid #ebebeb; width: 220px; }
 .dropdown-menu a { padding: 12px 20px; text-decoration: none; color: #000000; border-radius: 5px; }
 .dropdown-menu a:hover, .dropdown-menu a.active { background-color: #ff00bf; }
+/* SIGN IN & OUT */
 .menu-user-info { padding: 12px 20px; font-size: 0.9em; border-bottom: 1px solid #a5a5ff; margin-bottom: 5px; }
 .signout-btn-menu { background: none; border: none; color: #FF0000; padding: 12px 20px; text-align: left; cursor: pointer; font-size: 1em; font-weight: bold; }
-.signout-btn-menu:hover { background-color: #380081; }
-.transaction-form { display: flex; flex-direction: column; gap: 15px; margin-bottom: 30px; }
+.signout-btn-menu:hover { background-color: #010044; }
+
+/* --- FORMS & FILTERS --- */
+.transaction-form { display: flex; flex-direction: column; gap: 15px; margin-bottom: 30px; max-width: 500px; }
 .form-control { display: flex; flex-direction: column; gap: 5px; }
 .form-control label { font-weight: bold; }
 .form-control input, .form-control select { padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 1em; width: 100%; box-sizing: border-box; }
@@ -68,101 +84,75 @@ main { flex-grow: 1; display: flex; flex-direction: column; }
 .tabs button { padding: 10px 20px; border: none; background-color: transparent; cursor: pointer; font-size: 1em; color: #555; border-bottom: 3px solid transparent; margin-bottom: -2px; }
 .tabs button.active { color: var(--primary-action-color); border-bottom-color: var(--primary-action-color); }
 .view-switcher { border-bottom: none; justify-content: center; margin-bottom: 25px; }
+
+/* --- CUSTOM SELECT DROPDOWN --- */
 .custom-select-wrapper { position: relative; width: 100%; }
 .custom-select-wrapper select { -webkit-appearance: none; -moz-appearance: none; appearance: none; background-color: #fff; border: 1px solid #ddd; border-radius: 5px; padding: 10px; font-size: 1em; width: 100%; cursor: pointer; color: #333; }
-.custom-select-wrapper::after { content: '▼'; font-size: 12px; color: #555; position: absolute; right: 15px; top: 50%; transform: translateY(-50%); pointer-events: none; }
+.custom-select-wrapper::after { content: '▼'; font-size: 12px; color: #000000; position: absolute; right: 15px; top: 50%; transform: translateY(-50%); pointer-events: none; }
+
 /* --- TRANSACTION LIST --- */
-.transaction-list {
-  list-style-type: none;
-  padding: 0;
-  margin: 0;
+.transaction-list { list-style-type: none; padding: 0; margin: 0; }
+.transaction-list li { position: relative; padding: 15px; border-radius: 8px; margin-bottom: 10px; min-height: 50px;
 }
-.transaction-list li {
-  position: relative;
-  display: flex;
-  justify-content: space-between;
-  align-items: stretch;
-  padding: 15px;
-  border-radius: 8px;
-  margin-bottom: 10px;
-}
-.transaction-main-content {
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  margin-right: 10px;
-}
-.transaction-side-content {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  justify-content: space-between;
-  flex-shrink: 0;
-}
-.transaction-details {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.transaction-person {
-  font-weight: bold;
-  margin-right: 15px;
-  color: #181818;
-}
+.transaction-main-content { padding-right: 50px; /* Make space for buttons */ }
+
+.transaction-details span { color: #000000; position: absolute; left: 7px; bottom: 15px; font-size: 0.86em; font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif; font-weight: bold; font-style: italic; display: flex; align-items: center;}
+.transaction-details span.transaction-person { margin-right: 5px; font-size: 1.6em; position: absolute; top: 6px; left: 7px; display: flex; flex-direction: column; font-family: 'Aguafina Script'; font-weight: 1500; font-style: normal; display: flex; align-items: center; }
+
 .transaction-meta {
   margin-top: 5px;
-}
-.transaction-month {
-  font-size: 0.8em;
-  color: #444444;
-  font-weight: bold;
-}
-.transaction-amount {
-  font-weight: bold;
-  font-size: 1.2em;
-  white-space: nowrap;
-}
-.transaction-actions {
   display: flex;
   align-items: center;
-  gap: 15px;
 }
-.delete-btn {
-  background-color: var(--expense-color);
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 22px;
-  height: 22px;
-  cursor: pointer;
+.meta-left {
+  display: flex;
+  align-items: center;
+  gap: 5px; 
+}
+.transaction-month {
+  font-size: 0.7em;
+  color: #919191;
   font-weight: bold;
+  position: absolute;
+  bottom: 0px;
+  left: 6.5px;
+}
+.transaction-amount { position: absolute; bottom: -1px; right: 7px; font-weight: bold; font-size: 1.7em; }
+.transaction-actions { position: absolute; top: 4px; right: 4px; display: flex; gap: 15px; }
+.delete-btn {
+  background: #ff000000;
+  color: white;
+  border: 1px solid #00000060;
+  font-size: 18px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0;
-  font-size: 14px;
 }
 .edit-btn {
-  background: white;
+  background: rgba(255, 255, 255, 0.301);
   border: 1px solid #bdc3c7;
   color: #555;
   padding: 0;
-  font-size: 14px;
-  width: 25px;
-  height: 25px;
+  font-size: 17px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
 }
+.list-section, .input-section { flex: 1; min-width: 300px; }
 .presets-list { list-style: none; padding: 0; }
 .presets-list li { display: flex; justify-content: space-between; align-items: center; background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 10px; }
 .preset-info { display: flex; flex-direction: column; }
-.preset-description { font-weight: bold; color: #333; }
+.preset-description { font-weight: bold; color: #000000; }
 .preset-details { font-size: 0.9em; color: #555; }
 .preset-actions { display: flex; gap: 10px; align-items: center; }
-.delete-btn-preset { background-color: var(--expense-color); color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; padding: 0; font-size: 14px; }
+.delete-btn-preset { background: #00000060; color: white; border: 1px solid #000000; font-size: 14px; width: 25px; height: 25px; font-weight: bold; display: flex; align-items: center; justify-content: center; padding: 0;}
 .checklist { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 10px; }
 .checklist li { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-radius: 5px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border-left: 5px solid; transition: all 0.2s ease; }
 .checklist li.logged { opacity: 0.7; }
@@ -219,4 +209,17 @@ main { flex-grow: 1; display: flex; flex-direction: column; }
   .header-title {
     font-size: 1.8em;
   }
+}
+.payment-method-tag {
+  background-color: #7f8c8d;
+  color: white;
+  font-size: 0.75em;
+  padding: 3px 8px;
+  border-radius: 10px;
+  font-weight: bold;
+  margin-right: 10px;
+}
+.meta-left {
+  display: flex;
+  align-items: center;
 }
