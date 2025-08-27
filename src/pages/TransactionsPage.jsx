@@ -4,7 +4,7 @@ import { doc, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase.js';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import { Link } from 'react-router-dom';
-import { householdMembers, incomeCategories, expenseCategories, PERSON_COLORS, HOUSEHOLD_ID } from '../config.js';
+import { householdMembers, incomeCategories, expenseCategories, PERSON_COLORS, HOUSEHOLD_ID, paymentMethods } from '../config.js';
 import Modal from '../components/Modal.jsx';
 
 const TransactionsPage = () => {
@@ -13,6 +13,8 @@ const TransactionsPage = () => {
     const [activeTab, setActiveTab] = useState('All');
     const [selectedMonth, setSelectedMonth] = useState('All');
     const [categoryFilter, setCategoryFilter] = useState('All');
+    const [typeFilter, setTypeFilter] = useState('All');
+    const [paymentMethodFilter, setPaymentMethodFilter] = useState('All');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [transactionToDelete, setTransactionToDelete] = useState(null);
 
@@ -21,7 +23,14 @@ const TransactionsPage = () => {
     
     const uniqueMonths = [...new Set(transactions.map(t => { const d = t.createdAt.toDate(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`; }))];
     const allCategories = [...incomeCategories, ...expenseCategories];
-    const filteredTransactions = transactions.filter(t => selectedMonth === 'All' || `${t.createdAt.toDate().getFullYear()}-${String(t.createdAt.toDate().getMonth() + 1).padStart(2, '0')}` === selectedMonth).filter(t => activeTab === 'All' || t.person === activeTab).filter(t => categoryFilter === 'All' || t.category === categoryFilter);
+    
+    const filteredTransactions = transactions
+        .filter(t => typeFilter === 'All' || t.type === typeFilter)
+        .filter(t => paymentMethodFilter === 'All' || t.paymentMethod === paymentMethodFilter)
+        .filter(t => selectedMonth === 'All' || `${t.createdAt.toDate().getFullYear()}-${String(t.createdAt.toDate().getMonth() + 1).padStart(2, '0')}` === selectedMonth)
+        .filter(t => activeTab === 'All' || t.person === activeTab)
+        .filter(t => categoryFilter === 'All' || t.category === categoryFilter);
+        
     const formatCurrency = (value) => `€${value.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     const balance = filteredTransactions.reduce((acc, t) => (t.type === 'income' ? acc + t.amount : acc - t.amount), 0);
     
@@ -36,6 +45,8 @@ const TransactionsPage = () => {
                     <div className="tabs"><button className={activeTab === 'All' ? 'active' : ''} onClick={() => setActiveTab('All')}>All</button>{householdMembers.map(member => (<button key={member} className={activeTab === member ? 'active' : ''} onClick={() => setActiveTab(member)}>{member}</button>))}</div>
                     <div className="form-control"><label>Month</label><div className="custom-select-wrapper"><select value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value)}><option value="All">All Months</option>{uniqueMonths.map(month => (<option key={month} value={month}>{new Date(month + '-02').toLocaleString('de-DE', { month: 'long', year: 'numeric' })}</option>))}</select></div></div>
                     <div className="form-control"><label>Category</label><div className="custom-select-wrapper"><select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}><option value="All">All Categories</option>{allCategories.map(cat => (<option key={cat} value={cat}>{cat}</option>))} </select></div></div>
+                    <div className="form-control"><label>Type</label><div className="custom-select-wrapper"><select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}><option value="All">All Types</option><option value="income">Income</option><option value="expense">Expense</option></select></div></div>
+                    {(typeFilter === 'All' || typeFilter === 'expense') && <div className="form-control"><label>Payment Method</label><div className="custom-select-wrapper"><select value={paymentMethodFilter} onChange={(e) => setPaymentMethodFilter(e.target.value)}><option value="All">All Methods</option>{paymentMethods.map(method => (<option key={method} value={method}>{method}</option>))}</select></div></div>}
                 </div>
                 <ul className="transaction-list">
                     {filteredTransactions.map((transaction) => {
@@ -71,5 +82,3 @@ const TransactionsPage = () => {
     );
 };
 export default TransactionsPage;
-
-
