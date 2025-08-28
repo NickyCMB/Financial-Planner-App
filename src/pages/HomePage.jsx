@@ -17,7 +17,7 @@ const HomePage = () => {
     const monthlyIncome = currentMonthTransactions.filter(t => t.type === 'income').reduce((acc, t) => acc + t.amount, 0);
     const monthlyExpense = currentMonthTransactions.filter(t => t.type === 'expense').reduce((acc, t) => acc + t.amount, 0);
     const monthlyBalance = monthlyIncome - monthlyExpense;
-    const chartData = [{ name: 'Income', total: monthlyIncome, color: '#2ecc71' }, { name: 'Expense', total: monthlyExpense, color: '#e74c3c' }];
+    const chartData = [{ name: 'Income', total: monthlyIncome, color: '#006300ff' }, { name: 'Expense', total: monthlyExpense, color: '#c50000ff' }];
     const formatCurrency = (value) => `€${value.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
     if (loading) return <div className="page-content"><p>Loading dashboard...</p></div>;
