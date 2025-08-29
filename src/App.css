@@ -95,22 +95,21 @@ select {
   grid-area: details;
   display: flex;
   font-size: 1.2em;
-  gap: 40px;
+  font-family: "Macondo";
+  gap: 30px;
   align-items: flex-end; /* Align items to the bottom */
   align-self: end; /* Position at the bottom of its cell */
 }
 .transaction-description {
-  font-size: 0.9em;
-  font-family: "Macondo";
-  font-weight: bolder;
-  font-weight: 500;
+  font-size: 0.83em;
+  font-weight: bold;
   color: #414141;
 }
 .transaction-date {
-  font-size: 0.8em;
+  font-size: 0.6em;
   color: #868686;
   font-style: italic;
-  font-weight: 500;
+  font-weight: 200;
   white-space: nowrap;
 }
 .item-amount {
