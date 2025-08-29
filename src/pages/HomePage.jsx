@@ -25,7 +25,7 @@ const HomePage = () => {
         <div className="page-content">
             <div className="tabs view-switcher">{householdMembers.map(member => (<button key={member} className={viewingAs === member ? 'active' : ''} onClick={() => setViewingAs(member)}>{member}'s View</button>))}</div>
             <div className="top-balance-container"><p className="balance-large" style={{ color: monthlyBalance >= 0 ? '#008000' : '#FF0000' }}>{formatCurrency(monthlyBalance)}</p></div>
-            <div className="chart-container"><ResponsiveContainer width="100%" height={300}><BarChart data={chartData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}><XAxis dataKey="name" /><YAxis tickFormatter={(value) => `€${value.toLocaleString('de-DE')}`} /><Tooltip formatter={(value) => formatCurrency(value)} cursor={{fill: 'rgba(206, 206, 206, 0.2)'}} /><Bar dataKey="total" barSize={80}>{chartData.map((entry, index) => (<Cell key={`cell-${index}`} fill={entry.color} />))}</Bar></BarChart></ResponsiveContainer></div>
+            <div className="chart-container"><ResponsiveContainer width="100%" height={350}><BarChart data={chartData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}><XAxis dataKey="name" /><YAxis tickFormatter={(value) => `€${value.toLocaleString('de-DE')}`} /><Tooltip formatter={(value) => formatCurrency(value)} cursor={{fill: 'rgba(206, 206, 206, 0.2)'}} /><Bar dataKey="total" barSize={80}>{chartData.map((entry, index) => (<Cell key={`cell-${index}`} fill={entry.color} />))}</Bar></BarChart></ResponsiveContainer></div>
         </div>
     );
 };
