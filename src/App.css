@@ -126,7 +126,7 @@ select {
 
 /* These styles are still used by the actions */
 .delete-btn { background: #ff000000; color: white; border: 1px solid #00000060; font-size: 18px; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; padding: 0; } 
-.edit-btn { background: rgba(255, 255, 255, 0.301); border: 1px solid #bdc3c7; color: #555; padding: 0; font-size: 17px; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center;}
+.edit-btn { background: rgba(255, 255, 255, 0.301); border: 1px solid #bdc3c7; color: #555; padding: 0; font-size: 15px; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center;}
 /* --- PRESETS & CHECKLIST --- */
 .list-section, .input-section { width: 100%; }
 .presets-list { list-style: none; padding: 0; }
