@@ -11,4 +11,4 @@ export const incomeCategories = [
   'Cash Deposit',
   'Credit / Refund',
 ];
-export const expenseCategories = [ 'Home / Housing', 'Transportation', 'Groceries', 'Hygiene / Health', 'Entertainment', 'Shopping / Other', 'Smoking' ];
+export const expenseCategories = [ 'Home / Housing', 'Transportation', 'Groceries', 'Hygiene / Health', 'Entertainment', 'Shopping / Other', 'Smoking', 'Insurance '];
