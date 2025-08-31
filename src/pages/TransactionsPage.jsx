@@ -1,17 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTransactions } from '../contexts/TransactionContext.jsx';
 import { doc, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase.js';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import { Link } from 'react-router-dom';
-import { householdMembers, incomeCategories, expenseCategories, PERSON_COLORS, HOUSEHOLD_ID, paymentMethods } from '../config.js';
+import { householdMembers, incomeCategories, expenseCategories, PERSON_COLORS, HOUSEHOLD_ID, paymentMethods, ADMIN_EMAIL } from '../config.js';
 import Modal from '../components/Modal.jsx';
 
 const TransactionsPage = () => {
     const { transactions, loading } = useTransactions();
     const { user } = useAuth();
-    const [activeTab, setActiveTab] = useState('All');
-    const [selectedMonth, setSelectedMonth] = useState('All');
+
+    // --- NEW: Logic for smart defaults ---
+    const loggedInPerson = user.email === ADMIN_EMAIL ? 'Nicky' : 'Alex';
+    const now = new Date();
+    const currentMonthString = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+    // --- UPDATED: States now use the smart defaults ---
+    const [activeTab, setActiveTab] = useState(loggedInPerson);
+    const [selectedMonth, setSelectedMonth] = useState(currentMonthString);
+    
     const [categoryFilter, setCategoryFilter] = useState('All');
     const [typeFilter, setTypeFilter] = useState('All');
     const [paymentMethodFilter, setPaymentMethodFilter] = useState('All');
@@ -34,51 +42,6 @@ const TransactionsPage = () => {
     const formatCurrency = (value) => `€${value.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     const balance = filteredTransactions.reduce((acc, t) => (t.type === 'income' ? acc + t.amount : acc - t.amount), 0);
     
-    // NEW: Function to handle the CSV export
-    const handleExportCSV = () => {
-        if (filteredTransactions.length === 0) {
-            alert("There are no transactions to export in the current view.");
-            return;
-        }
-
-        // Define the headers for the CSV file
-        const headers = ['Date', 'Person', 'Description', 'Category', 'Type', 'Payment Method', 'Amount'];
-        
-        // Convert transaction objects to an array of arrays for the CSV
-        const rows = filteredTransactions.map(t => {
-            const date = t.createdAt.toDate().toLocaleDateString('de-DE');
-            // Ensure data with commas is wrapped in quotes
-            const description = `"${t.description}"`;
-            const amount = t.type === 'expense' ? -t.amount : t.amount;
-            
-            return [
-                date,
-                t.person,
-                description,
-                t.category,
-                t.type,
-                t.paymentMethod || '', // Use empty string if no payment method
-                amount.toString().replace('.', ',') // Use comma for decimal
-            ];
-        });
-
-        // Combine headers and rows, with each row on a new line
-        const csvContent = [headers.join(';'), ...rows.map(row => row.join(';'))].join('\n');
-
-        // Create a 'blob' (a file-like object) and trigger a download
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement("a");
-        if (link.download !== undefined) {
-            const url = URL.createObjectURL(blob);
-            link.setAttribute("href", url);
-            link.setAttribute("download", "transactions.csv");
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-    };
-
     if (loading) return <div className="page-content"><p>Loading transactions...</p></div>;
 
     return (
@@ -86,7 +49,10 @@ const TransactionsPage = () => {
             <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onConfirm={handleDeleteTransaction} title="Transaktion löschen">Möchtest du die Transaktion wirklich löschen?</Modal>
             <div className="page-content">
                 <div className="section-header"><h3 className="balance-title">Balance for this view: {formatCurrency(balance)}</h3></div>
-                <div className="tabs filter-tabs"><button className={activeTab === 'All' ? 'active' : ''} onClick={() => setActiveTab('All')}>All</button>{householdMembers.map(member => (<button key={member} className={activeTab === member ? 'active' : ''} onClick={() => setActiveTab(member)}>{member}</button>))}</div>
+                <div className="tabs filter-tabs">
+                    <button className={activeTab === 'All' ? 'active' : ''} onClick={() => setActiveTab('All')}>All</button>
+                    {householdMembers.map(member => (<button key={member} className={activeTab === member ? 'active' : ''} onClick={() => setActiveTab(member)}>{member}</button>))}
+                </div>
                 <div className="filter-grid">
                     <div className="form-control" style={{ gridArea: 'category' }}><label>Category</label><div className="custom-select-wrapper"><select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}><option value="All">All Categories</option>{allCategories.map(cat => (<option key={cat} value={cat}>{cat}</option>))} </select></div></div>
                     <div className="form-control" style={{ gridArea: 'month' }}><label>Month</label><div className="custom-select-wrapper"><select value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value)}><option value="All">All Months</option>{uniqueMonths.map(month => (<option key={month} value={month}>{new Date(month + '-02').toLocaleString('de-DE', { month: 'long', year: 'numeric' })}</option>))}</select></div></div>
