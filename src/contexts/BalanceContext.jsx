@@ -2,6 +2,7 @@
 
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { useTransactions } from './TransactionContext.jsx';
+import { householdMembers } from '../config.js';
 
 const BalanceContext = createContext();
 
@@ -18,46 +19,45 @@ export const BalanceProvider = ({ children }) => {
     if (transactions.length > 0) {
       setLoading(true);
       
-      // 1. Group transactions by month (e.g., "2025-08")
       const transactionsByMonth = transactions.reduce((acc, t) => {
-        const month = t.createdAt.toDate().toISOString().slice(0, 7); // "YYYY-MM"
-        if (!acc[month]) {
-          acc[month] = [];
-        }
+        const month = t.createdAt.toDate().toISOString().slice(0, 7);
+        if (!acc[month]) acc[month] = [];
         acc[month].push(t);
         return acc;
       }, {});
 
-      // 2. Get a sorted list of months
       const sortedMonths = Object.keys(transactionsByMonth).sort();
-
-      // 3. Calculate summaries for each month in order
-      let lastMonthBalance = 0;
       const summaries = {};
       
+      // Keep track of the last balance for each person and the household
+      const lastBalances = {};
+      householdMembers.forEach(member => { lastBalances[member] = 0; });
+      lastBalances['Household'] = 0;
+
       sortedMonths.forEach(month => {
-        const openingBalance = lastMonthBalance;
-        const monthTransactions = transactionsByMonth[month];
+        summaries[month] = {};
         
-        const totalIncome = monthTransactions
-          .filter(t => t.type === 'income')
-          .reduce((sum, t) => sum + t.amount, 0);
+        // Calculate for each individual member
+        householdMembers.forEach(member => {
+          const openingBalance = lastBalances[member];
+          const memberTransactions = transactionsByMonth[month].filter(t => t.person === member);
           
-        const totalExpense = monthTransactions
-          .filter(t => t.type === 'expense')
-          .reduce((sum, t) => sum + t.amount, 0);
+          const totalIncome = memberTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+          const totalExpense = memberTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+          const closingBalance = openingBalance + totalIncome - totalExpense;
           
-        const closingBalance = openingBalance + totalIncome - totalExpense;
+          summaries[month][member] = { openingBalance, totalIncome, totalExpense, closingBalance };
+          lastBalances[member] = closingBalance;
+        });
+
+        // Calculate for the whole household
+        const householdOpening = lastBalances['Household'];
+        const householdIncome = transactionsByMonth[month].filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+        const householdExpense = transactionsByMonth[month].filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+        const householdClosing = householdOpening + householdIncome - householdExpense;
         
-        summaries[month] = {
-          openingBalance,
-          totalIncome,
-          totalExpense,
-          closingBalance,
-        };
-        
-        // The closing balance of this month is the opening balance for the next
-        lastMonthBalance = closingBalance;
+        summaries[month]['Household'] = { openingBalance: householdOpening, totalIncome: householdIncome, totalExpense: householdExpense, closingBalance: householdClosing };
+        lastBalances['Household'] = householdClosing;
       });
 
       setMonthlySummaries(summaries);
@@ -66,12 +66,9 @@ export const BalanceProvider = ({ children }) => {
         setMonthlySummaries({});
         setLoading(false);
     }
-  }, [transactions]); // Re-run this entire calculation whenever transactions change
+  }, [transactions]);
 
-  const value = {
-    monthlySummaries,
-    isBalanceLoading: loading,
-  };
+  const value = { monthlySummaries, isBalanceLoading: loading };
 
   return (
     <BalanceContext.Provider value={value}>

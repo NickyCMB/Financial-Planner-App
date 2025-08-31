@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../firebase.js';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import { useNotification } from '../contexts/NotificationContext.jsx';
-import { collection, addDoc, onSnapshot, orderBy, query, doc, deleteDoc, updateDoc } from 'firebase/firestore';
+import { collection, query, where, getDocs, writeBatch, Timestamp, addDoc, onSnapshot, orderBy, doc, deleteDoc, updateDoc } from 'firebase/firestore';
 import { householdMembers, incomeCategories, expenseCategories, HOUSEHOLD_ID, paymentMethods } from '../config.js';
 import Modal from '../components/Modal.jsx';
 
@@ -11,6 +11,8 @@ const ManagePresetsPage = () => {
     const { showNotification } = useNotification();
     const [presets, setPresets] = useState([]);
     const [personFilter, setPersonFilter] = useState(householdMembers[0]);
+    
+    // Form State
     const [description, setDescription] = useState('');
     const [amount, setAmount] = useState('');
     const [type, setType] = useState('expense');
@@ -18,55 +20,88 @@ const ManagePresetsPage = () => {
     const [category, setCategory] = useState(expenseCategories[0]);
     const [isVariable, setIsVariable] = useState(false);
     const [paymentMethod, setPaymentMethod] = useState(paymentMethods[0]);
+
     const [editingPresetId, setEditingPresetId] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [presetToDelete, setPresetToDelete] = useState(null);
+    const [isDeleteOldModalOpen, setIsDeleteOldModalOpen] = useState(false);
 
-    // This correctly fetches presets from the shared HOUSEHOLD_ID
+    // Fetch presets from Firestore
     useEffect(() => {
         if (user) {
             const q = query(collection(db, 'users', HOUSEHOLD_ID, 'presets'), orderBy('description'));
             const unsubscribe = onSnapshot(q, (snapshot) => {
-                setPresets(snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id })));
+                setPresets(snapshot.docs.map(presetDoc => ({ ...presetDoc.data(), id: presetDoc.id })));
             });
             return () => unsubscribe();
         }
     }, [user]);
 
-   const openDeleteModal = (id) => { setPresetToDelete(id); setIsModalOpen(true); };
-    const handleDeletePreset = async () => { if (!presetToDelete) return; await deleteDoc(doc(db, 'users', HOUSEHOLD_ID, 'presets', presetToDelete)); setIsModalOpen(false); setPresetToDelete(null); showNotification("Preset deleted"); };
+    // Handle form state changes
     useEffect(() => { if (type === 'income') setCategory(incomeCategories[0]); else setCategory(expenseCategories[0]); }, [type]);
     useEffect(() => { if (isVariable) setAmount(''); }, [isVariable]);
+
+    const resetForm = () => {
+        setDescription(''); setAmount(''); setType('expense'); setPerson(householdMembers[0]);
+        setCategory(expenseCategories[0]); setIsVariable(false); setPaymentMethod(paymentMethods[0]); setEditingPresetId(null);
+    };
+
+    const handleEditClick = (preset) => {
+        setEditingPresetId(preset.id); setDescription(preset.description); setAmount(preset.amount.toString());
+        setType(preset.type); setPerson(preset.person); setCategory(preset.category);
+        setIsVariable(preset.isVariable); setPaymentMethod(preset.paymentMethod || paymentMethods[0]);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
     
-    const resetForm = () => { setDescription(''); setAmount(''); setType('expense'); setPerson(householdMembers[0]); setCategory(expenseCategories[0]); setIsVariable(false); setPaymentMethod(paymentMethods[0]); setEditingPresetId(null); };
-    const handleEditClick = (preset) => { setEditingPresetId(preset.id); setDescription(preset.description); setAmount(preset.amount.toString()); setType(preset.type); setPerson(preset.person); setCategory(preset.category); setIsVariable(preset.isVariable); setPaymentMethod(preset.paymentMethod || paymentMethods[0]); window.scrollTo({ top: 0, behavior: 'smooth' }); };
-    
-    // This function now correctly adds AND updates to the shared HOUSEHOLD_ID
     const handleFormSubmit = async (e) => {
         e.preventDefault();
         if (!description) { alert('Please enter a description.'); return; }
         const presetData = { description, amount: isVariable ? 0 : parseFloat(amount.replace(',', '.') || 0), type, person, category, isVariable, };
-        if (type === 'expense') {
-            presetData.paymentMethod = paymentMethod;
-        } else {
-            presetData.paymentMethod = null;
-        }
+        if (type === 'expense') { presetData.paymentMethod = paymentMethod; } else { presetData.paymentMethod = null; }
         
         if (editingPresetId) {
-            // Corrected path for updating
-            await updateDoc(doc(db, 'users', HOUSEHOLD_ID, 'presets', editingPresetId), presetData); showNotification("Preset successfully updated");
+            await updateDoc(doc(db, 'users', HOUSEHOLD_ID, 'presets', editingPresetId), presetData);
+            showNotification("Preset successfully updated");
         } else {
-            // Corrected path for adding
-            await addDoc(collection(db, 'users', HOUSEHOLD_ID, 'presets'), presetData); showNotification("Preset successfully added");
+            await addDoc(collection(db, 'users', HOUSEHOLD_ID, 'presets'), presetData);
+            showNotification("Preset successfully added");
         }
         resetForm();
+    };
+    
+    const openDeleteModal = (id) => { setPresetToDelete(id); setIsModalOpen(true); };
+    const handleDeletePreset = async () => { if (!presetToDelete) return; await deleteDoc(doc(db, 'users', HOUSEHOLD_ID, 'presets', presetToDelete)); setIsModalOpen(false); setPresetToDelete(null); showNotification("Preset deleted"); };
+
+    const handleDeleteOldTransactions = async () => {
+        setIsDeleteOldModalOpen(false);
+        const sixMonthsAgo = new Date();
+        sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+        const sixMonthsAgoTimestamp = Timestamp.fromDate(sixMonthsAgo);
+        const transactionsRef = collection(db, 'users', HOUSEHOLD_ID, 'transactions');
+        const q = query(transactionsRef, where("createdAt", "<", sixMonthsAgoTimestamp));
+        try {
+            const querySnapshot = await getDocs(q);
+            if (querySnapshot.empty) {
+                showNotification("No transactions older than 6 months found to delete.");
+                return;
+            }
+            const batch = writeBatch(db);
+            querySnapshot.forEach((doc) => { batch.delete(doc.ref); });
+            await batch.commit();
+            showNotification(`Successfully deleted ${querySnapshot.size} old transactions.`);
+        } catch (error) {
+            console.error("Error deleting old transactions: ", error);
+            alert("An error occurred: " + error.message);
+        }
     };
     
     const filteredPresets = presets.filter(p => p.person === personFilter);
 
     return (
         <>
-            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onConfirm={handleDeletePreset} title="Voreingestellte Transaktion löschen">Möchtest du das Preset wirklich löschen</Modal>
+            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onConfirm={handleDeletePreset} title="Preset löschen">Möchtest du das Preset wirklich löschen?</Modal>
+            <Modal isOpen={isDeleteOldModalOpen} onClose={() => setIsDeleteOldModalOpen(false)} onConfirm={handleDeleteOldTransactions} title="Delete Old Data?">Are you sure you want to permanently delete all transactions older than 6 months? This cannot be undone.</Modal>
+            
             <div className="page-content">
                 <section className="input-section">
                     <form className="transaction-form" onSubmit={handleFormSubmit}>
@@ -81,12 +116,10 @@ const ManagePresetsPage = () => {
                     </form>
                 </section>
                 <section className="list-section">
-                    <div className="filter-controls">
-                        <div className="tabs">{householdMembers.map(member => (<button key={member} className={personFilter === member ? 'active' : ''} onClick={() => setPersonFilter(member)}>{member}'s Presets</button>))}</div>
-                    </div>
+                    <div className="filter-controls"><div className="tabs">{householdMembers.map(member => (<button key={member} className={personFilter === member ? 'active' : ''} onClick={() => setPersonFilter(member)}>{member}'s Presets</button>))}</div></div>
                     <h3>Your Saved Presets</h3>
                     <ul className="presets-list">
-                        {filteredPresets.map(preset => {
+                         {filteredPresets.map(preset => {
                             const isCashPreset = (preset.type === 'income' && preset.category === 'Cash Deposit') || (preset.type === 'expense' && preset.paymentMethod === 'Cash Withdrawal');
                             return (
                                 <li key={preset.id}>
@@ -101,10 +134,15 @@ const ManagePresetsPage = () => {
                                         <button className="edit-btn" onClick={() => handleEditClick(preset)}>✏️</button>
                                         <button className="delete-btn-preset" onClick={() => openDeleteModal(preset.id)}>🗑️</button>
                                     </div>
-                                </li>
-                            );
-                        })}
+                                        </li>
+                                        );
+})}
                     </ul>
+                </section>
+                <section className="data-management-section">
+                    <h3>Data Management</h3>
+                    <p>Perform irreversible actions on your data. Please be careful.</p>
+                    <button className="btn-danger" onClick={() => setIsDeleteOldModalOpen(true)}>Delete Transactions Older Than 6 Months</button>
                 </section>
             </div>
         </>
