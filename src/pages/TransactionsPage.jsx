@@ -34,6 +34,51 @@ const TransactionsPage = () => {
     const formatCurrency = (value) => `€${value.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     const balance = filteredTransactions.reduce((acc, t) => (t.type === 'income' ? acc + t.amount : acc - t.amount), 0);
     
+    // NEW: Function to handle the CSV export
+    const handleExportCSV = () => {
+        if (filteredTransactions.length === 0) {
+            alert("There are no transactions to export in the current view.");
+            return;
+        }
+
+        // Define the headers for the CSV file
+        const headers = ['Date', 'Person', 'Description', 'Category', 'Type', 'Payment Method', 'Amount'];
+        
+        // Convert transaction objects to an array of arrays for the CSV
+        const rows = filteredTransactions.map(t => {
+            const date = t.createdAt.toDate().toLocaleDateString('de-DE');
+            // Ensure data with commas is wrapped in quotes
+            const description = `"${t.description}"`;
+            const amount = t.type === 'expense' ? -t.amount : t.amount;
+            
+            return [
+                date,
+                t.person,
+                description,
+                t.category,
+                t.type,
+                t.paymentMethod || '', // Use empty string if no payment method
+                amount.toString().replace('.', ',') // Use comma for decimal
+            ];
+        });
+
+        // Combine headers and rows, with each row on a new line
+        const csvContent = [headers.join(';'), ...rows.map(row => row.join(';'))].join('\n');
+
+        // Create a 'blob' (a file-like object) and trigger a download
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        if (link.download !== undefined) {
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", "transactions.csv");
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    };
+
     if (loading) return <div className="page-content"><p>Loading transactions...</p></div>;
 
     return (
@@ -47,6 +92,10 @@ const TransactionsPage = () => {
                     <div className="form-control" style={{ gridArea: 'month' }}><label>Month</label><div className="custom-select-wrapper"><select value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value)}><option value="All">All Months</option>{uniqueMonths.map(month => (<option key={month} value={month}>{new Date(month + '-02').toLocaleString('de-DE', { month: 'long', year: 'numeric' })}</option>))}</select></div></div>
                     <div className="form-control" style={{ gridArea: 'payment' }}><label>Payment Method</label><div className="custom-select-wrapper"><select value={paymentMethodFilter} onChange={(e) => setPaymentMethodFilter(e.target.value)} disabled={typeFilter === 'income'}><option value="All">All Methods</option>{paymentMethods.map(method => (<option key={method} value={method}>{method}</option>))}</select></div></div>
                     <div className="form-control" style={{ gridArea: 'type' }}><label>Type</label><div className="custom-select-wrapper"><select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}><option value="All">All Types</option><option value="income">Income</option><option value="expense">Expense</option></select></div></div>
+                </div>
+                {/* NEW: Export Button */}
+                <div className="export-section">
+                    <button className="export-btn" onClick={handleExportCSV}>📤</button>
                 </div>
                 <ul className="transaction-list">
                     {filteredTransactions.map((transaction) => {
