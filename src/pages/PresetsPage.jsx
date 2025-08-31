@@ -25,7 +25,19 @@ const PresetsPage = () => {
     return (
         <div className="page-content">
             <div className="tabs">{householdMembers.map(member => (<button key={member} className={personFilter === member ? 'active' : ''} onClick={() => setPersonFilter(member)}>{member}'s Checklist</button>))}</div>
-            {loading ? <p>Loading...</p> : (<ul className="checklist">{checklistItems.map(item => { const colors = PERSON_COLORS[item.person] || {}; const itemStyle = { borderLeftColor: colors.primary, backgroundColor: item.isLogged ? colors.backgroundLogged : '#e9e6ffff', }; return (<li key={item.id} className={item.isLogged ? 'logged' : ''} style={itemStyle}><div className="preset-info"><span className="preset-description">{item.description}</span></div><div className="checklist-action">{item.isLogged ? (<span style={{ color: '#008000' }}>✔️ Logged</span>) : item.isVariable ? (<div className="variable-input-group"><span>€</span><input type="number" placeholder="0.00" value={variableAmounts[item.id] || ''} onChange={(e) => handleVariableAmountChange(item.id, e.target.value)} /><button style={{backgroundColor: colors.primary}} onClick={() => handleLogPreset(item)}>Log</button></div>) : (<button style={{backgroundColor: colors.primary}} onClick={() => handleLogPreset(item)}>Log €{item.amount.toLocaleString('de-DE', {minimumFractionDigits: 2})}</button>)}</div></li>);})}</ul>)}
+            {loading ? <p>Loading...</p> : (<ul className="checklist">{checklistItems.map(item => { const colors = PERSON_COLORS[item.person] || {}; const itemStyle = { borderLeftColor: colors.primary, backgroundColor: item.isLogged ? colors.backgroundLogged : '#e9e6ffff', };    
+            // NEW: Logic to check if the preset is a cash transaction
+                        const isCashPreset = 
+                            (item.type === 'income' && item.category === 'Cash Deposit') || 
+                            (item.type === 'expense' && item.paymentMethod === 'Cash Withdrawal');
+
+                       return (
+                            <li key={item.id} className={item.isLogged ? 'logged' : ''} style={itemStyle}>
+                                <div className="preset-info">
+                                    {isCashPreset && <span className="cash-icon-preset">💸</span>}
+                                    <span className="preset-description">{item.description}</span>
+                                </div>
+<div className="checklist-action">{item.isLogged ? (<span style={{ color: '#008000' }}>✔️ Logged</span>) : item.isVariable ? (<div className="variable-input-group"><span>€</span><input type="number" placeholder="0.00" value={variableAmounts[item.id] || ''} onChange={(e) => handleVariableAmountChange(item.id, e.target.value)} /><button style={{backgroundColor: colors.primary}} onClick={() => handleLogPreset(item)}>Log</button></div>) : (<button style={{backgroundColor: colors.primary}} onClick={() => handleLogPreset(item)}>Log €{item.amount.toLocaleString('de-DE', {minimumFractionDigits: 2})}</button>)}</div></li>);})}</ul>)}
         </div>
     );
 };
