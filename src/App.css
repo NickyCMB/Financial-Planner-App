@@ -209,6 +209,19 @@ select {
   100% { opacity: 0; top: 0px; }
 }
 
+/* Add this to the end of App.css */
+
+.data-management-section {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 2px solid #eee;
+}
+
+.data-management-section p {
+  font-size: 0.9em;
+  color: #555;
+  margin-bottom: 20px;
+}
 /* --- MOBILE RESPONSIVENESS --- */
 @media (max-width: 768px) {
   .app-wrapper { padding: 0; }
