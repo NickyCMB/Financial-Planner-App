@@ -11,8 +11,6 @@ const ManagePresetsPage = () => {
     const { showNotification } = useNotification();
     const [presets, setPresets] = useState([]);
     const [personFilter, setPersonFilter] = useState(householdMembers[0]);
-    
-    // Form State
     const [description, setDescription] = useState('');
     const [amount, setAmount] = useState('');
     const [type, setType] = useState('expense');
@@ -20,7 +18,6 @@ const ManagePresetsPage = () => {
     const [category, setCategory] = useState(expenseCategories[0]);
     const [isVariable, setIsVariable] = useState(false);
     const [paymentMethod, setPaymentMethod] = useState(paymentMethods[0]);
-
     const [editingPresetId, setEditingPresetId] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [presetToDelete, setPresetToDelete] = useState(null);
@@ -40,7 +37,7 @@ const ManagePresetsPage = () => {
     const handleDeletePreset = async () => { if (!presetToDelete) return; await deleteDoc(doc(db, 'users', HOUSEHOLD_ID, 'presets', presetToDelete)); setIsModalOpen(false); setPresetToDelete(null); showNotification("Preset deleted"); };
     useEffect(() => { if (type === 'income') setCategory(incomeCategories[0]); else setCategory(expenseCategories[0]); }, [type]);
     useEffect(() => { if (isVariable) setAmount(''); }, [isVariable]);
-
+    
     const resetForm = () => { setDescription(''); setAmount(''); setType('expense'); setPerson(householdMembers[0]); setCategory(expenseCategories[0]); setIsVariable(false); setPaymentMethod(paymentMethods[0]); setEditingPresetId(null); };
     const handleEditClick = (preset) => { setEditingPresetId(preset.id); setDescription(preset.description); setAmount(preset.amount.toString()); setType(preset.type); setPerson(preset.person); setCategory(preset.category); setIsVariable(preset.isVariable); setPaymentMethod(preset.paymentMethod || paymentMethods[0]); window.scrollTo({ top: 0, behavior: 'smooth' }); };
     
@@ -90,11 +87,7 @@ const ManagePresetsPage = () => {
                     <h3>Your Saved Presets</h3>
                     <ul className="presets-list">
                         {filteredPresets.map(preset => {
-                            // NEW: Logic to check if the preset is a cash transaction
-                            const isCashPreset = 
-                                (preset.type === 'income' && preset.category === 'Cash Deposit') || 
-                                (preset.type === 'expense' && preset.paymentMethod === 'Cash Withdrawal');
-
+                            const isCashPreset = (preset.type === 'income' && preset.category === 'Cash Deposit') || (preset.type === 'expense' && preset.paymentMethod === 'Cash Withdrawal');
                             return (
                                 <li key={preset.id}>
                                     <div className="preset-info">
@@ -118,4 +111,3 @@ const ManagePresetsPage = () => {
     );
 };
 export default ManagePresetsPage;
-
