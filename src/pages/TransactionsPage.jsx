@@ -10,6 +10,7 @@ import Modal from '../components/Modal.jsx';
 const TransactionsPage = () => {
     const { transactions, loading } = useTransactions();
     const { user } = useAuth();
+
     const loggedInPerson = user.email === ADMIN_EMAIL ? 'Nicky' : 'Alex';
     const now = new Date();
     const currentMonthString = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
@@ -22,7 +23,9 @@ const TransactionsPage = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [transactionToDelete, setTransactionToDelete] = useState(null);
 
-    useEffect(() => { setActiveTab(loggedInPerson); }, [loggedInPerson]);
+    useEffect(() => {
+        setActiveTab(loggedInPerson);
+    }, [loggedInPerson]);
 
     const openDeleteModal = (id) => { setTransactionToDelete(id); setIsModalOpen(true); };
     const handleDeleteTransaction = async () => { if (!user || !transactionToDelete) return; try { await deleteDoc(doc(db, 'users', HOUSEHOLD_ID, 'transactions', transactionToDelete)); } catch (error) { console.error("Error deleting document: ", error); } setIsModalOpen(false); setTransactionToDelete(null); };
@@ -32,7 +35,12 @@ const TransactionsPage = () => {
     
     const filteredTransactions = transactions
         .filter(t => typeFilter === 'All' || t.type === typeFilter)
-        .filter(t => paymentMethodFilter === 'All' || !t.paymentMethod || t.paymentMethod === paymentMethodFilter)
+        .filter(t => {
+            if (paymentMethodFilter === 'All') return true;
+            if (paymentMethodFilter === 'Cash Withdrawal') return t.paymentMethod === 'Cash Withdrawal';
+            if (paymentMethodFilter === 'Direct Debit / Transfer') return t.paymentMethod === 'Direct Debit / Transfer' || (t.type === 'expense' && !t.paymentMethod);
+            return false;
+        })
         .filter(t => selectedMonth === 'All' || `${t.createdAt.toDate().getFullYear()}-${String(t.createdAt.toDate().getMonth() + 1).padStart(2, '0')}` === selectedMonth)
         .filter(t => activeTab === 'All' || t.person === activeTab)
         .filter(t => categoryFilter === 'All' || t.category === categoryFilter);
@@ -40,25 +48,41 @@ const TransactionsPage = () => {
     const formatCurrency = (value) => `€${value.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     const balance = filteredTransactions.reduce((acc, t) => (t.type === 'income' ? acc + t.amount : acc - t.amount), 0);
     
+    //
+    // --- THIS IS THE MISSING FUNCTION ---
+    //
     const handleExportCSV = () => {
-        if (filteredTransactions.length === 0) { alert("There are no transactions to export."); return; }
+        if (filteredTransactions.length === 0) {
+            alert("There are no transactions to export in the current view.");
+            return;
+        }
         const headers = ['Date', 'Person', 'Description', 'Category', 'Type', 'Payment Method', 'Amount'];
         const rows = filteredTransactions.map(t => {
             const date = t.createdAt.toDate().toLocaleDateString('de-DE');
-            const description = `"${(t.description || '').replace(/"/g, '""')}"`;
+            const description = `"${(t.description || '').replace(/"/g, '""')}"`; // Handle quotes in description
             const amount = t.type === 'expense' ? -t.amount : t.amount;
-            return [ date, t.person, description, t.category, t.type, t.paymentMethod || '', amount.toString().replace('.', ',') ];
+            return [
+                date,
+                t.person,
+                description,
+                t.category,
+                t.type,
+                t.paymentMethod || '',
+                amount.toString().replace('.', ',')
+            ];
         });
         const csvContent = [headers.join(';'), ...rows.map(row => row.join(';'))].join('\n');
         const blob = new Blob([`\uFEFF${csvContent}`], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement("a");
-        const url = URL.createObjectURL(blob);
-        link.setAttribute("href", url);
-        link.setAttribute("download", "transactions.csv");
-        link.style.visibility = 'hidden';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        if (link.download !== undefined) {
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", "transactions.csv");
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
     };
 
     if (loading) return <div className="page-content"><p>Loading transactions...</p></div>;
@@ -77,12 +101,12 @@ const TransactionsPage = () => {
                 <div className="filter-grid">
                     <div className="form-control" style={{ gridArea: 'category' }}><label>Category</label><div className="custom-select-wrapper"><select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}><option value="All">All Categories</option>{allCategories.map(cat => (<option key={cat} value={cat}>{cat}</option>))} </select></div></div>
                     <div className="form-control" style={{ gridArea: 'month' }}><label>Month</label><div className="custom-select-wrapper"><select value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value)}><option value="All">All Months</option>{uniqueMonths.map(month => (<option key={month} value={month}>{new Date(month + '-02').toLocaleString('de-DE', { month: 'long', year: 'numeric' })}</option>))}</select></div></div>
-                    <div className="form-control" style={{ gridArea: 'payment' }}><label>Payment Method</label><div className="custom-select-wrapper"><select value={paymentMethodFilter} onChange={(e) => setPaymentMethodFilter(e.target.value)} disabled={typeFilter === 'income'}><option value="All">All Methods</option>{paymentMethods.map(method => (<option key={method} value={method}>{method}</option>))}</select></div></div>
+                    <div className="form-control" style={{ gridArea: 'payment' }}><label>Payment Method</label><div className="custom-select-wrapper"><select value={paymentMethodFilter} onChange={(e) => setPaymentMethodFilter(e.target.value)} disabled={typeFilter === 'income'}><option value="All">All Methods</option>{paymentMethods.map(method => (<option key={method} value={method}>{method}</option>))} </select></div></div>
                     <div className="form-control" style={{ gridArea: 'type' }}><label>Type</label><div className="custom-select-wrapper"><select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}><option value="All">All Types</option><option value="income">Income</option><option value="expense">Expense</option></select></div></div>
                 </div>
 
                 <div className="export-section">
-                    <button className="export-btn" onClick={handleExportCSV}>📤 Export as CSV</button>
+                    <button className="export-btn" onClick={handleExportCSV}>📦 Export as CSV</button>
                 </div>
 
                 <ul className="transaction-list">
