@@ -34,13 +34,23 @@ const PresetsPage = () => {
         const presetAmount = preset.isVariable ? parseFloat(variableAmounts[preset.id] || 0) : preset.amount;
         if (presetAmount <= 0) { alert("Please enter a valid amount."); return; }
         try {
+            // 1. Create the base transaction
             const newTransaction = {
                 description: preset.description, amount: presetAmount, type: preset.type, 
                 person: preset.person, category: preset.category, createdAt: new Date(),
             };
+            
+            // 2. Add payment method if it's an expense
             if (preset.type === 'expense') {
                 newTransaction.paymentMethod = preset.paymentMethod || null;
             }
+
+            // 3. THIS IS THE FIX: Check for and add the denomination data
+            if (preset.denominations) {
+                newTransaction.denominations = preset.denominations;
+            }
+
+            // 4. Save the complete transaction
             await addDoc(collection(db, 'users', HOUSEHOLD_ID, 'transactions'), newTransaction);
             
             if (preset.isSavings) {
