@@ -132,7 +132,7 @@ select {
 .presets-list { list-style: none; padding: 0; }
 .presets-list li { display: flex; justify-content: space-between; align-items: center; background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 10px; }
 .preset-info { display: flex; flex-direction: column; }
-.preset-description { font-weight: bold; color: #333; }
+.preset-description { font-weight: bold; color: #333; margin-right: 5px;}
 .preset-details { font-size: 0.9em; color: #555; }
 .preset-actions { display: flex; gap: 10px; align-items: center; }
 .delete-btn-preset { background: #ff000000; color: white; border: 1px solid #00000060; font-size: 18px; width: 27px; height: 27px; border-radius: 50%; display: flex; align-items: center; justify-content: center; padding: 0; }
@@ -171,8 +171,8 @@ select {
   display: flex;
   justify-content: flex-end;
   margin-bottom: 20px;
+  width: 100%; /* Add this line */
 }
-
 .export-btn {
   background-color: #4218ff49; /* A nice teal color */
   color: white;
@@ -227,4 +227,174 @@ select {
   .app-wrapper { padding: 0; }
   .app-container { padding: 15px; border-radius: 0; min-height: 100vh; box-shadow: none; border: none; }
   .header-title { font-size: 1.8em; }
+}
+/* --- DENOMINATION COMPONENT --- */
+.denomination-selector {
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+.denomination-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  width: 100%;
+  max-width: 300px;
+}
+.denomination-btn {
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  font-size: 1.1em;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.2;
+  padding-bottom: 2px;
+}
+.denomination-btn.btn-minus {
+  background-color: #FFCCCB; /* Light Red */
+  border: 1px solid #ffaaaa;
+  color: #c1121f;
+}
+.denomination-btn.btn-plus {
+  background-color: #90EE90; /* Light Green */
+  border: 1px solid #76c876;
+  color: #006400;
+}
+.denomination-count {
+  font-size: 1.1em;
+  font-weight: bold;
+  color: var(--primary-action-color);
+  width: 50px;
+  text-align: left;
+}
+
+/* This is the key fix for consistent sizing */
+.bill-rectangle {
+  width: 100px; /* Fixed width */
+  padding: 15px 20px; /* Your requested padding */
+  border-radius: 5px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0; /* This prevents it from stretching or shrinking */
+}
+.bill-amount {
+  color: #000000;
+  font-weight: bold;
+  font-size: 1.1em;
+}
+
+/* --- DENOMINATION SUMMARY PAGE --- */
+.denomination-summary-page .tabs {
+  justify-content: center;
+}
+.denomination-summary-page .filter-grid {
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+  border-bottom: none;
+  grid-template-columns: 1fr;
+}
+.summary-list {
+  list-style: none;
+  padding: 0;
+  max-width: 500px;
+  margin: 20px auto;
+  width: 100%;
+}
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+.summary-row .bill-rectangle {
+  margin-right: 20px;
+}
+.summary-count {
+  font-size: 1.5em;
+  font-weight: bold;
+  color: var(--primary-action-color);
+  text-align: right;
+  flex-grow: 1;
+}
+.summary-total {
+  font-size: 1.5em;
+  font-weight: bold;
+  text-align: center;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 2px solid #333;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+/* --- SAVINGS PAGE STYLES --- */
+.savings-list {
+  list-style: none;
+  padding: 0;
+  width: 100%;
+  max-width: 700px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+.savings-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-radius: 8px;
+  border-left: 5px solid;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+.savings-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.savings-description {
+  font-weight: bold;
+  font-size: 1.2em;
+  color: #333;
+}
+.savings-balance {
+  font-size: 1.5em;
+  font-weight: 700;
+  color: var(--primary-action-color);
+}
+.balance-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.balance-adjust-input {
+  width: 60px;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  text-align: center;
+  font-size: 1.1em;
+  font-weight: bold;
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.balance-adjust-input::-webkit-outer-spin-button,
+.balance-adjust-input::-webkit-inner-spin-button {
+  -webkit-appearance: none; /* Hide arrows on Chrome/Safari */
+  margin: 0;
 }

@@ -9,6 +9,8 @@ import TransactionsPage from './pages/TransactionsPage.jsx';
 import PresetsPage from './pages/PresetsPage.jsx';
 import ManagePresetsPage from './pages/ManagePresetsPage.jsx';
 import EditTransactionPage from './pages/EditTransactionPage.jsx';
+import DenominationsPage from './pages/DenominationsPage.jsx';
+import SavingsPage from './pages/SavingsPage.jsx';
 
 function usePrevious(value) { const ref = useRef(); useEffect(() => { ref.current = value; }); return ref.current; }
 
@@ -24,7 +26,7 @@ function App() {
   useEffect(() => { if (!prevUser && user) { navigate('/'); } }, [user, prevUser, navigate]);
 
   const loggedInPerson = user ? (isAdmin ? 'Nicky' : 'Alex') : null;
-  const appBackgroundColor = loggedInPerson ? PERSON_COLORS[loggedInPerson]?.background : '#ffffff';
+  const appBackgroundColor = loggedInPerson ? PERSON_COLORS[loggedInPerson]?.background : '#f4f4f8';
 
   if (loading) { return <div className="loading-container"><h1>Loading App...</h1></div>; }
   if (!user) { return ( <div className="login-container"><h1 className="login-title">This is your financial planer</h1><p>to show you the money you have to</p><button className="login-btn" onClick={signInWithGoogle}>Sign in with Google</button></div> ); }
@@ -41,10 +43,13 @@ function App() {
             {isMenuOpen && (
               <nav className="dropdown-menu" onClick={() => setIsMenuOpen(false)}>
                 <div className="menu-user-info">Signed in as <strong>{user.displayName}</strong></div>
+                {/* --- REORDERED NAVIGATION --- */}
                 <NavLink to="/" end>Dashboard</NavLink>
-                <NavLink to="/add">Add Transaction</NavLink>
+                <NavLink to="/denominations">Denominations</NavLink>
                 <NavLink to="/transactions">View All</NavLink>
+                <NavLink to="/add">Add Transaction</NavLink>
                 <NavLink to="/presets" end>Fixed Costs</NavLink>
+                <NavLink to="/savings">Savings</NavLink>
                 {isAdmin && <NavLink to="/presets/manage">Manage Presets</NavLink>}
                 <button className="signout-btn-menu" onClick={signOutUser}>Sign Out</button>
               </nav>
@@ -52,11 +57,14 @@ function App() {
           </div>
         </header>
         <main>
+          {/* --- REORDERED ROUTES (for good practice) --- */}
           <Routes>
             <Route path="/" element={<HomePage />} />
-            <Route path="/add" element={<AddTransactionPage />} />
+            <Route path="/denominations" element={<DenominationsPage />} />
             <Route path="/transactions" element={<TransactionsPage />} />
+            <Route path="/add" element={<AddTransactionPage />} />
             <Route path="/presets" element={<PresetsPage />} />
+            <Route path="/savings" element={<SavingsPage />} />
             <Route path="/edit/:transactionId" element={<EditTransactionPage />} />
             {isAdmin && <Route path="/presets/manage" element={<ManagePresetsPage />} />}
           </Routes>

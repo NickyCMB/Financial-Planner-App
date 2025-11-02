@@ -2,18 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../firebase.js';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import { useTransactions } from '../contexts/TransactionContext.jsx';
-import { collection, addDoc, onSnapshot, orderBy, query } from 'firebase/firestore';
-// CORRECTED: ADMIN_EMAIL has been removed from the import
-import { householdMembers, PERSON_COLORS, HOUSEHOLD_ID } from '../config.js';
+import { collection, addDoc, onSnapshot, orderBy, query, doc, updateDoc, increment } from 'firebase/firestore';
+import { householdMembers, PERSON_COLORS, ADMIN_EMAIL, HOUSEHOLD_ID } from '../config.js';
 
 const PresetsPage = () => {
     const { user } = useAuth();
     const { transactions } = useTransactions();
     const [presets, setPresets] = useState([]);
     const [loading, setLoading] = useState(true);
-    // CORRECTED: Defaults to the first member, no admin logic needed
-    const [personFilter, setPersonFilter] = useState(householdMembers[0]);
+    const loggedInPerson = user.email === ADMIN_EMAIL ? 'Nicky' : 'Alex';
+    const [personFilter, setPersonFilter] = useState(loggedInPerson);
     const [variableAmounts, setVariableAmounts] = useState({});
+
+    useEffect(() => { setPersonFilter(loggedInPerson); }, [loggedInPerson]);
 
     useEffect(() => {
         if (user) {
@@ -31,10 +32,7 @@ const PresetsPage = () => {
 
     const handleLogPreset = async (preset) => {
         const presetAmount = preset.isVariable ? parseFloat(variableAmounts[preset.id] || 0) : preset.amount;
-        if (presetAmount <= 0) {
-            alert("Please enter a valid amount for this variable expense.");
-            return;
-        }
+        if (presetAmount <= 0) { alert("Please enter a valid amount."); return; }
         try {
             const newTransaction = {
                 description: preset.description, amount: presetAmount, type: preset.type, 
@@ -44,19 +42,22 @@ const PresetsPage = () => {
                 newTransaction.paymentMethod = preset.paymentMethod || null;
             }
             await addDoc(collection(db, 'users', HOUSEHOLD_ID, 'transactions'), newTransaction);
-            if (preset.isVariable) {
-                handleVariableAmountChange(preset.id, '');
+            
+            if (preset.isSavings) {
+                const savingsGoalRef = doc(db, 'users', HOUSEHOLD_ID, 'savingsGoals', preset.id);
+                await updateDoc(savingsGoalRef, {
+                    currentBalance: increment(presetAmount)
+                });
             }
+            
+            if (preset.isVariable) { handleVariableAmountChange(preset.id, ''); }
         } catch (error) {
-            console.error("Error logging preset transaction: ", error);
+            console.error("Error logging transaction: ", error);
             alert("Firebase Error: " + error.message);
         }
     };
     
-    const handleVariableAmountChange = (id, value) => {
-        setVariableAmounts(prev => ({ ...prev, [id]: value }));
-    };
-    
+    const handleVariableAmountChange = (id, value) => { setVariableAmounts(prev => ({ ...prev, [id]: value })); };
     const now = new Date();
     const currentMonthTransactions = transactions.filter(t => { const d = t.createdAt.toDate(); return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth(); });
     const checklistItems = presets.filter(preset => preset.person === personFilter).map(preset => { const isLogged = currentMonthTransactions.some(t => t.description === preset.description && t.person === preset.person); return { ...preset, isLogged }; });

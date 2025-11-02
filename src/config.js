@@ -4,7 +4,13 @@ export const householdMembers = ['Nicky', 'Alex'];
 export const PERSON_COLORS = { Nicky: { primary: '#000080', background: '#9dc2ddff', backgroundLogged: '#78a7ceff' }, Alex: { primary: '#6500a7', background: '#c1c1fcff', backgroundLogged: '#9292daff' }};
 // NEW: List of payment methods for expenses
 export const paymentMethods = ['Direct Debit / Transfer', 'Cash Withdrawal',];
-
+export const denominations = [10, 20, 50, 100];
+export const BILL_COLORS = {
+  10: '#C58293',
+  20: '#4673aaff',
+  50: '#ce870cff',
+  100: '#38b100ff',
+};
 // UPDATED: New income categories
 export const incomeCategories = [
   'Salary / Work',
