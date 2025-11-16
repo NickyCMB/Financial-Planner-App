@@ -24,6 +24,7 @@ const ManagePresetsPage = () => {
     const [editingPresetId, setEditingPresetId] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [presetToDelete, setPresetToDelete] = useState(null);
+    const [isDeleteOldModalOpen, setIsDeleteOldModalOpen] = useState(false);
 
     const isCashWithdrawal = type === 'expense' && paymentMethod === 'Cash Withdrawal';
 
@@ -45,12 +46,9 @@ const ManagePresetsPage = () => {
             await updateDoc(presetRef, presetData);
             const savingsGoalRef = doc(db, 'users', HOUSEHOLD_ID, 'savingsGoals', editingPresetId);
             if (isSavings) {
-                // FIXED: Check if the goal exists, if not, add currentBalance: 0
                 const goalSnap = await getDoc(savingsGoalRef);
                 const goalData = { presetId: editingPresetId, description: presetData.description, person: presetData.person };
-                if (!goalSnap.exists()) {
-                    goalData.currentBalance = 0;
-                }
+                if (!goalSnap.exists()) { goalData.currentBalance = 0; }
                 await setDoc(savingsGoalRef, goalData, { merge: true });
             } else {
                 await deleteDoc(savingsGoalRef).catch(() => {});
@@ -69,11 +67,30 @@ const ManagePresetsPage = () => {
     const openDeleteModal = (id) => { setPresetToDelete(id); setIsModalOpen(true); };
     const handleDeletePreset = async () => { if (!presetToDelete) return; await deleteDoc(doc(db, 'users', HOUSEHOLD_ID, 'presets', presetToDelete)); await deleteDoc(doc(db, 'users', HOUSEHOLD_ID, 'savingsGoals', presetToDelete)).catch(() => {}); setIsModalOpen(false); setPresetToDelete(null); showNotification("Preset deleted"); };
     
+    const handleDeleteOldTransactions = async () => {
+        setIsDeleteOldModalOpen(false);
+        const sixMonthsAgo = new Date();
+        sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+        const sixMonthsAgoTimestamp = Timestamp.fromDate(sixMonthsAgo);
+        const transactionsRef = collection(db, 'users', HOUSEHOLD_ID, 'transactions');
+        const q = query(transactionsRef, where("createdAt", "<", sixMonthsAgoTimestamp));
+        try {
+            const querySnapshot = await getDocs(q);
+            if (querySnapshot.empty) { showNotification("No transactions older than 6 months found to delete."); return; }
+            const batch = writeBatch(db);
+            querySnapshot.forEach((doc) => { batch.delete(doc.ref); });
+            await batch.commit();
+            showNotification(`Successfully deleted ${querySnapshot.size} old transactions.`);
+        } catch (error) { console.error("Error deleting old transactions: ", error); alert("An error occurred: " + error.message); }
+    };
+    
     const filteredPresets = presets.filter(p => p.person === personFilter);
 
     return (
         <>
             <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onConfirm={handleDeletePreset} title="Preset löschen">Möchtest du das Preset wirklich löschen?</Modal>
+            <Modal isOpen={isDeleteOldModalOpen} onClose={() => setIsDeleteOldModalOpen(false)} onConfirm={handleDeleteOldTransactions} title="Delete Old Data?">Are you sure you want to permanently delete all transactions older than 6 months? This cannot be undone.</Modal>
+            
             <div className="page-content">
                 <section className="input-section">
                     <form className="transaction-form" onSubmit={handleFormSubmit}>
@@ -85,7 +102,10 @@ const ManagePresetsPage = () => {
                         <div className="form-control checkbox-control"><input id="preset-isVariable" type="checkbox" checked={isVariable} onChange={(e) => setIsVariable(e.target.checked)} disabled={isCashWithdrawal}/><label htmlFor="preset-isVariable">Variable Amount (non-cash)</label></div>
                         <div className="form-control checkbox-control"><input id="preset-isSavings" type="checkbox" checked={isSavings} onChange={(e) => setIsSavings(e.target.checked)} /><label htmlFor="preset-isSavings">Mark as a Savings Goal</label></div>
                         <div className="form-control"><label htmlFor="preset-person">Person</label><div className="custom-select-wrapper"><select id="preset-person" value={person} onChange={(e) => setPerson(e.target.value)}>{householdMembers.map(member => <option key={member} value={member}>{member}</option>)}</select></div></div>
-                        <div className="form-control"><label htmlFor="preset-category">Category</label><div className="custom-select-wrapper"><select id="preset-category" value={category} onChange={(e) => setCategory(e.targe.value)}>{type === 'income' ? incomeCategories.map(cat => <option key={cat} value={cat}>{cat}</option>) : expenseCategories.map(cat => <option key={cat} value={cat}>{cat}</option>)}</select></div></div>
+                        
+                        {/* THIS IS THE FIXED LINE */}
+                        <div className="form-control"><label htmlFor="preset-category">Category</label><div className="custom-select-wrapper"><select id="preset-category" value={category} onChange={(e) => setCategory(e.target.value)}>{type === 'income' ? incomeCategories.map(cat => <option key={cat} value={cat}>{cat}</option>) : expenseCategories.map(cat => <option key={cat} value={cat}>{cat}</option>)}</select></div></div>
+                        
                         <div className="form-buttons"><button type="submit">{editingPresetId ? 'Update Preset' : 'Add Preset'}</button>{editingPresetId && <button type="button" className="cancel-btn" onClick={resetForm}>Cancel</button>}</div>
                     </form>
                 </section>
