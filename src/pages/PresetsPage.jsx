@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../firebase.js';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import { useTransactions } from '../contexts/TransactionContext.jsx';
-import { collection, addDoc, onSnapshot, orderBy, query, doc, updateDoc, increment } from 'firebase/firestore';
+// REMOVED: doc, updateDoc, and increment are no longer needed here
+import { collection, addDoc, onSnapshot, orderBy, query } from 'firebase/firestore';
 import { householdMembers, PERSON_COLORS, ADMIN_EMAIL, HOUSEHOLD_ID } from '../config.js';
 
 const PresetsPage = () => {
@@ -34,31 +35,21 @@ const PresetsPage = () => {
         const presetAmount = preset.isVariable ? parseFloat(variableAmounts[preset.id] || 0) : preset.amount;
         if (presetAmount <= 0) { alert("Please enter a valid amount."); return; }
         try {
-            // 1. Create the base transaction
+            // 1. Create the transaction
             const newTransaction = {
                 description: preset.description, amount: presetAmount, type: preset.type, 
                 person: preset.person, category: preset.category, createdAt: new Date(),
             };
-            
-            // 2. Add payment method if it's an expense
             if (preset.type === 'expense') {
                 newTransaction.paymentMethod = preset.paymentMethod || null;
             }
-
-            // 3. THIS IS THE FIX: Check for and add the denomination data
             if (preset.denominations) {
                 newTransaction.denominations = preset.denominations;
             }
 
-            // 4. Save the complete transaction
             await addDoc(collection(db, 'users', HOUSEHOLD_ID, 'transactions'), newTransaction);
             
-            if (preset.isSavings) {
-                const savingsGoalRef = doc(db, 'users', HOUSEHOLD_ID, 'savingsGoals', preset.id);
-                await updateDoc(savingsGoalRef, {
-                    currentBalance: increment(presetAmount)
-                });
-            }
+            // 2. REMOVED: The logic to update savingsGoals is now gone.
             
             if (preset.isVariable) { handleVariableAmountChange(preset.id, ''); }
         } catch (error) {
