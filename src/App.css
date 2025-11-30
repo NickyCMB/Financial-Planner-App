@@ -82,21 +82,21 @@ select {
   font-family: 'Playball';
   font-weight: bold;
   font-size: 1.9em;
-  align-self: start; /* Position at the top of its cell */
+  align-self: start; 
 }
 .item-actions {
   grid-area: actions;
   display: flex;
   gap: 20px; 
-  align-self: start; /* Position at the top of its cell */
-  justify-self: end; /* Position at the right of its cell */
+  align-self: start; 
+  justify-self: end; 
 }
 .item-details {
   grid-area: details;
   display: flex;
-  font-size: 1.2em;
+  font-size: 1.0em;
   font-family: "Macondo";
-  gap: 30px;
+  gap: 25px;
   align-items: flex-end; /* Align items to the bottom */
   align-self: end; /* Position at the bottom of its cell */
 }
@@ -106,7 +106,7 @@ select {
   color: #414141;
 }
 .transaction-date {
-  font-size: 0.6em;
+  font-size: 0.5em;
   color: #868686;
   font-style: italic;
   font-weight: 200;
@@ -115,16 +115,15 @@ select {
 .item-amount {
   grid-area: amount;
   font-weight: bolder;
-  font-size: 1.7em;
+  font-size: 1.5em;
   align-self: end; /* Position at the bottom of its cell */
   justify-self: end; /* Position at the right of its cell */
 }
 .cash-icon { 
-  font-size: 1em; 
-  margin-right: 30px; /* Approx. 30px total spacing with gap */ 
+  font-size: 0,9em; 
+  margin-right: 25px; /* Approx. 30px total spacing with gap */ 
 }
 
-/* These styles are still used by the actions */
 .delete-btn { background: #ff000000; color: white; border: 1px solid #00000060; font-size: 18px; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; padding: 0; } 
 .edit-btn { background: rgba(255, 255, 255, 0.301); border: 1px solid #bdc3c7; color: #555; padding: 0; font-size: 15px; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center;}
 /* --- PRESETS & CHECKLIST --- */
@@ -160,7 +159,7 @@ select {
 .balance-large { font-size: 4em; font-weight: bolder; margin-top: 20px; margin-bottom: 30px; text-decoration-line: underline; text-underline-offset: 8px;}
 .chart-container { width: 100%; max-width: 600px; height: 350px; margin: 0 auto; }
 .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
-.modal-content { background-color: white; padding: 25px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); text-align: center; max-width: 400px; width: 90%; }
+.modal-content { background-color: rgb(222, 224, 255); padding: 25px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); text-align: center; max-width: 400px; width: 90%; }
 .modal-content h4 { margin-top: 0; }
 .modal-actions { margin-top: 20px; display: flex; gap: 10px; justify-content: center; }
 .modal-actions button { padding: 10px 20px; border-radius: 5px; border: none; cursor: pointer; font-weight: bold; }
@@ -171,10 +170,10 @@ select {
   display: flex;
   justify-content: flex-end;
   margin-bottom: 20px;
-  width: 100%; /* Add this line */
+  width: 100%;
 }
 .export-btn {
-  background-color: #4218ff49; /* A nice teal color */
+  background-color: #4218ff49;
   color: white;
   border: none;
   padding: 10px 20px;
@@ -192,24 +191,20 @@ select {
   top: 20px;
   left: 50%;
   transform: translateX(-50%);
-  background-color: #2ecc71;
+  background-color: #3bcc2e;
   color: white;
   padding: 12px 24px;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
   z-index: 2000;
   font-weight: bold;
-  animation: fadeInOut 3s forwards;
-}
+  animation: fadeInOut 3s forwards;}
 
 @keyframes fadeInOut {
   0% { opacity: 0; top: 0px; }
   15% { opacity: 1; top: 20px; }
   85% { opacity: 1; top: 20px; }
-  100% { opacity: 0; top: 0px; }
-}
-
-/* Add this to the end of App.css */
+  100% { opacity: 0; top: 0px; }}
 
 .data-management-section {
   margin-top: 40px;
