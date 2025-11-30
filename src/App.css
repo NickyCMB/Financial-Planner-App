@@ -398,3 +398,40 @@ select {
   -webkit-appearance: none; /* Hide arrows on Chrome/Safari */
   margin: 0;
 }
+/* --- CASH BREAKDOWN POPUP --- */
+.cash-icon.clickable {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+.cash-icon.clickable:hover {
+  transform: scale(1.2);
+}
+
+.mini-bill-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 20px 0;
+}
+.mini-bill-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+  gap: 15px;
+}
+.bill-rectangle-mini {
+  width: 60px;
+  padding: 5px;
+  border-radius: 3px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  color: #000;
+}
+.bill-count-mini {
+  font-weight: bold;
+  font-size: 1.1em;
+  color: var(--primary-action-color);
+}

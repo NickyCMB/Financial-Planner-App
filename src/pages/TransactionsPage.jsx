@@ -4,7 +4,7 @@ import { doc, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase.js';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import { Link } from 'react-router-dom';
-import { householdMembers, incomeCategories, expenseCategories, PERSON_COLORS, HOUSEHOLD_ID, paymentMethods, ADMIN_EMAIL } from '../config.js';
+import { householdMembers, incomeCategories, expenseCategories, PERSON_COLORS, HOUSEHOLD_ID, paymentMethods, ADMIN_EMAIL, denominations, BILL_COLORS } from '../config.js';
 import Modal from '../components/Modal.jsx';
 
 const TransactionsPage = () => {
@@ -20,8 +20,13 @@ const TransactionsPage = () => {
     const [categoryFilter, setCategoryFilter] = useState('All');
     const [typeFilter, setTypeFilter] = useState('All');
     const [paymentMethodFilter, setPaymentMethodFilter] = useState('All');
+    
+    // Modal States
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [transactionToDelete, setTransactionToDelete] = useState(null);
+    
+    // NEW: State for the cash popup
+    const [selectedCashTransaction, setSelectedCashTransaction] = useState(null);
 
     useEffect(() => {
         setActiveTab(loggedInPerson);
@@ -48,28 +53,14 @@ const TransactionsPage = () => {
     const formatCurrency = (value) => `€${value.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     const balance = filteredTransactions.reduce((acc, t) => (t.type === 'income' ? acc + t.amount : acc - t.amount), 0);
     
-    //
-    // --- THIS IS THE MISSING FUNCTION ---
-    //
     const handleExportCSV = () => {
-        if (filteredTransactions.length === 0) {
-            alert("There are no transactions to export in the current view.");
-            return;
-        }
+        if (filteredTransactions.length === 0) { alert("There are no transactions to export in the current view."); return; }
         const headers = ['Date', 'Person', 'Description', 'Category', 'Type', 'Payment Method', 'Amount'];
         const rows = filteredTransactions.map(t => {
             const date = t.createdAt.toDate().toLocaleDateString('de-DE');
-            const description = `"${(t.description || '').replace(/"/g, '""')}"`; // Handle quotes in description
+            const description = `"${(t.description || '').replace(/"/g, '""')}"`;
             const amount = t.type === 'expense' ? -t.amount : t.amount;
-            return [
-                date,
-                t.person,
-                description,
-                t.category,
-                t.type,
-                t.paymentMethod || '',
-                amount.toString().replace('.', ',')
-            ];
+            return [ date, t.person, description, t.category, t.type, t.paymentMethod || '', amount.toString().replace('.', ',') ];
         });
         const csvContent = [headers.join(';'), ...rows.map(row => row.join(';'))].join('\n');
         const blob = new Blob([`\uFEFF${csvContent}`], { type: 'text/csv;charset=utf-8;' });
@@ -90,6 +81,39 @@ const TransactionsPage = () => {
     return (
         <>
             <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onConfirm={handleDeleteTransaction} title="Löschen bestätigen">Möchtest du die Transaktion wirklich löschen?</Modal>
+            
+            {/* NEW: Cash Denomination Popup */}
+            {selectedCashTransaction && (
+                <div className="modal-overlay" onClick={() => setSelectedCashTransaction(null)}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '300px' }}>
+                        <h4>Cash Breakdown</h4>
+                        <p style={{marginBottom: '15px', fontStyle: 'italic'}}>{selectedCashTransaction.description}</p>
+                        
+                        {selectedCashTransaction.denominations ? (
+                            <ul className="mini-bill-list">
+                                {denominations.map(bill => {
+                                    const count = selectedCashTransaction.denominations[bill] || 0;
+                                    if (count === 0) return null; // Only show bills that are needed
+                                    return (
+                                        <li key={bill} className="mini-bill-row">
+                                            <div className="bill-rectangle-mini" style={{ backgroundColor: BILL_COLORS[bill] }}>
+                                                <span>€{bill}</span>
+                                            </div>
+                                            <span className="bill-count-mini">x {count}</span>
+                                        </li>
+                                    );
+                                })}
+                            </ul>
+                        ) : (
+                            <p>No denomination data saved for this transaction.</p>
+                        )}
+                        <div className="modal-actions">
+                            <button className="btn-secondary" onClick={() => setSelectedCashTransaction(null)}>Close</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <div className="page-content">
                 <div className="section-header"><h3 className="balance-title">Balance for this view: {formatCurrency(balance)}</h3></div>
                 
@@ -125,7 +149,16 @@ const TransactionsPage = () => {
                                     <span className="transaction-date">{transaction.createdAt.toDate().toLocaleString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
                                 </div>
                                 <div className="item-amount" style={{ color: transaction.type === 'income' ? '#008000' : '#FF0000' }}>
-                                    {isCashTransaction && <span className="cash-icon">💸</span>}
+                                    {isCashTransaction && (
+                                        // NEW: Added onClick to open the popup
+                                        <span 
+                                            className="cash-icon clickable" 
+                                            onClick={() => setSelectedCashTransaction(transaction)}
+                                            title="Click to see cash breakdown"
+                                        >
+                                            💸
+                                        </span>
+                                    )}
                                     <span>{transaction.type === 'income' ? '+' : '-'}{formatCurrency(transaction.amount)}</span>
                                 </div>
                             </li>
