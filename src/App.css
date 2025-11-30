@@ -101,12 +101,12 @@ select {
   align-self: end; /* Position at the bottom of its cell */
 }
 .transaction-description {
-  font-size: 0.83em;
+  font-size: 0.85em;
   font-weight: bold;
   color: #414141;
 }
 .transaction-date {
-  font-size: 0.5em;
+  font-size: 0.6em;
   color: #868686;
   font-style: italic;
   font-weight: 200;
@@ -121,7 +121,7 @@ select {
 }
 .cash-icon { 
   font-size: 0,9em; 
-  margin-right: 25px; /* Approx. 30px total spacing with gap */ 
+  margin-right: 20px; /* Approx. 30px total spacing with gap */ 
 }
 
 .delete-btn { background: #ff000000; color: white; border: 1px solid #00000060; font-size: 18px; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; padding: 0; } 
