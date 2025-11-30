@@ -90,8 +90,6 @@ const PresetsPage = () => {
         const isLogged = transactionsForTargetMonth.some(t => t.description === preset.description && t.person === preset.person); 
         return { ...preset, isLogged }; 
     });
-
-    // Helper to calculate next month name for the label
     const nextMonthName = new Date(today.getFullYear(), today.getMonth() + 1, 1).toLocaleString('en-US', { month: 'long' });
     const currentMonthName = today.toLocaleString('en-US', { month: 'long' });
 
