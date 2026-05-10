@@ -12,7 +12,11 @@ import EditTransactionPage from './pages/EditTransactionPage.jsx';
 import DenominationsPage from './pages/DenominationsPage.jsx';
 import SavingsPage from './pages/SavingsPage.jsx';
 
-function usePrevious(value) { const ref = useRef(); useEffect(() => { ref.current = value; }); return ref.current; }
+function usePrevious(value) { 
+  const ref = useRef(); 
+  useEffect(() => { ref.current = value; }); 
+  return ref.current; 
+}
 
 function App() {
   const { user, loading, signInWithGoogle, signOutUser } = useAuth();
@@ -22,8 +26,48 @@ function App() {
   const location = useLocation();
   const prevUser = usePrevious(user);
 
-  useEffect(() => { if (!user) return; let timer; const reset = () => { clearTimeout(timer); timer = setTimeout(() => { if (location.pathname !== '/') navigate('/'); }, 5 * 60 * 1000); }; const events = ['mousemove', 'keydown', 'click', 'scroll']; events.forEach(e => window.addEventListener(e, reset)); reset(); return () => { clearTimeout(timer); events.forEach(e => window.removeEventListener(e, reset)); }; }, [user, navigate, location.pathname]);
-  useEffect(() => { if (!prevUser && user) { navigate('/'); } }, [user, prevUser, navigate]);
+  // --- NEW: Ref for the burger menu container ---
+  const menuRef = useRef(null);
+
+  // --- NEW: Effect to handle clicks outside the menu ---
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      // If the menu is open, the ref exists, AND the click was outside the container
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    if (isMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isMenuOpen]);
+
+  useEffect(() => { 
+    if (!user) return; 
+    let timer; 
+    const reset = () => { 
+      clearTimeout(timer); 
+      timer = setTimeout(() => { 
+        if (location.pathname !== '/') navigate('/'); 
+      }, 5 * 60 * 1000); 
+    }; 
+    const events = ['mousemove', 'keydown', 'click', 'scroll']; 
+    events.forEach(e => window.addEventListener(e, reset)); 
+    reset(); 
+    return () => { 
+      clearTimeout(timer); 
+      events.forEach(e => window.removeEventListener(e, reset)); 
+    }; 
+  }, [user, navigate, location.pathname]);
+  
+  useEffect(() => { 
+    if (!prevUser && user) { navigate('/'); } 
+  }, [user, prevUser, navigate]);
 
   const loggedInPerson = user ? (isAdmin ? 'Nicky' : 'Alex') : null;
   const appBackgroundColor = loggedInPerson ? PERSON_COLORS[loggedInPerson]?.background : '#f4f4f8';
@@ -36,7 +80,8 @@ function App() {
       <div className="app-container" style={{ backgroundColor: appBackgroundColor }}>
         <header className="main-header">
           <h1 className="header-title">Finanzplaner</h1>
-          <div className="burger-menu-container">
+          {/* --- NEW: Attached the menuRef to the container --- */}
+          <div className="burger-menu-container" ref={menuRef}>
             <div className="burger-menu" onClick={() => setIsMenuOpen(!isMenuOpen)}>
               <div className="burger-line"></div><div className="burger-line"></div><div className="burger-line"></div>
             </div>

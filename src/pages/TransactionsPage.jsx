@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTransactions } from '../contexts/TransactionContext.jsx';
-import { doc, deleteDoc } from 'firebase/firestore';
+import { doc, deleteDoc, collection, getDocs, writeBatch, query } from 'firebase/firestore';
 import { db } from '../firebase.js';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import { Link } from 'react-router-dom';
@@ -25,7 +25,7 @@ const TransactionsPage = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [transactionToDelete, setTransactionToDelete] = useState(null);
 
-    // NEW: State for the cash popup
+    // State for the cash popup
     const [selectedCashTransaction, setSelectedCashTransaction] = useState(null);
 
     useEffect(() => {
@@ -33,7 +33,75 @@ const TransactionsPage = () => {
     }, [loggedInPerson]);
 
     const openDeleteModal = (id) => { setTransactionToDelete(id); setIsModalOpen(true); };
-    const handleDeleteTransaction = async () => { if (!user || !transactionToDelete) return; try { await deleteDoc(doc(db, 'users', HOUSEHOLD_ID, 'transactions', transactionToDelete)); } catch (error) { console.error("Error deleting document: ", error); } setIsModalOpen(false); setTransactionToDelete(null); };
+    
+    const handleDeleteTransaction = async () => { 
+        if (!user || !transactionToDelete) return; 
+        try { 
+            await deleteDoc(doc(db, 'users', HOUSEHOLD_ID, 'transactions', transactionToDelete)); 
+        } catch (error) { 
+            console.error("Error deleting document: ", error); 
+        } 
+        setIsModalOpen(false); 
+        setTransactionToDelete(null); 
+    };
+
+    // --- FRESH START FUNCTION ---
+    const handleExportAndWipe = async () => {
+        // 1. Safety First: Double Confirmation
+        const isConfirmed = window.confirm(
+            "🚨 WARNING 🚨\n\nAre you absolutely sure you want to DOWNLOAD all data and then permanently DELETE it from the database?\n\nThis is your 'Fresh Start' and cannot be undone."
+        );
+        
+        if (!isConfirmed) return;
+    
+        try {
+            // 2. Fetch all current transactions
+            const q = query(collection(db, 'users', HOUSEHOLD_ID, 'transactions'));
+            const snapshot = await getDocs(q);
+    
+            if (snapshot.empty) {
+                alert("Your database is already empty! Nothing to export or delete.");
+                return;
+            }
+    
+            // 3. Prepare the CSV Content
+            let csvContent = "Date,Description,Category,Type,Person,Amount,Payment Method\n";
+            
+            snapshot.forEach((docSnap) => {
+                const data = docSnap.data();
+                const date = data.createdAt ? data.createdAt.toDate().toLocaleDateString('de-DE') : '';
+                const desc = `"${data.description || ''}"`; 
+                const amount = data.amount || 0;
+                
+                csvContent += `${date},${desc},${data.category},${data.type},${data.person},${amount},${data.paymentMethod || ''}\n`;
+            });
+    
+            // 4. Trigger the CSV Download
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `finanzplaner_backup_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+    
+            // 5. Delete the Data using a Batch
+            const batch = writeBatch(db);
+            snapshot.forEach((docSnap) => {
+                batch.delete(docSnap.ref);
+            });
+            
+            // Execute the mass deletion
+            await batch.commit();
+    
+            alert("✅ Success! Your data has been downloaded and your database is completely wiped. Enjoy your fresh start!");
+    
+        } catch (error) {
+            console.error("Error during export and wipe: ", error);
+            alert("An error occurred. Please check the console.");
+        }
+    };
 
     const uniqueMonths = [...new Set(transactions.map(t => { const d = t.createdAt.toDate(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`; }))].sort().reverse();
     const allCategories = [...incomeCategories, ...expenseCategories];
@@ -82,7 +150,7 @@ const TransactionsPage = () => {
         <>
             <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onConfirm={handleDeleteTransaction} title="Löschen bestätigen">Möchtest du die Transaktion wirklich löschen?</Modal>
 
-            {/* NEW: Cash Denomination Popup */}
+            {/* Cash Denomination Popup */}
             {selectedCashTransaction && (
                 <div className="modal-overlay" onClick={() => setSelectedCashTransaction(null)}>
                     <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '300px' }}>
@@ -93,7 +161,7 @@ const TransactionsPage = () => {
                             <ul className="mini-bill-list">
                                 {denominations.map(bill => {
                                     const count = selectedCashTransaction.denominations[bill] || 0;
-                                    if (count === 0) return null; // Only show bills that are needed
+                                    if (count === 0) return null; 
                                     return (
                                         <li key={bill} className="mini-bill-row">
                                             <div className="bill-rectangle-mini" style={{ backgroundColor: BILL_COLORS[bill] }}>
@@ -150,7 +218,6 @@ const TransactionsPage = () => {
                                 </div>
                                 <div className="item-amount" style={{ color: transaction.type === 'income' ? '#008000' : '#FF0000' }}>
                                     {isCashTransaction && (
-                                        // NEW: Added onClick to open the popup
                                         <span
                                             className="cash-icon clickable"
                                             onClick={() => setSelectedCashTransaction(transaction)}
@@ -165,6 +232,26 @@ const TransactionsPage = () => {
                         );
                     })}
                 </ul>
+
+                {/* --- THE MOVED BUTTON --- */}
+                <div style={{ marginTop: '40px', borderTop: '2px solid #ffcccc', paddingTop: '20px', textAlign: 'center' }}>
+                    <p style={{ color: '#e74c3c', fontWeight: 'bold', marginBottom: '10px' }}>Danger Zone</p>
+                    <button 
+                        onClick={handleExportAndWipe} 
+                        style={{ 
+                            backgroundColor: '#e74c3c', 
+                            color: 'white', 
+                            padding: '10px 20px',
+                            border: 'none',
+                            borderRadius: '5px',
+                            cursor: 'pointer',
+                            fontWeight: 'bold' 
+                        }}
+                    >
+                        🔄 Download All Data & Fresh Start
+                    </button>
+                </div>
+
             </div>
         </>
     );
