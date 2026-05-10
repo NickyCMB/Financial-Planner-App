@@ -430,3 +430,44 @@ select {
   font-size: 1.1em;
   color: var(--primary-action-color);
 }
+/* --- TOAST NOTIFICATIONS --- */
+.toast-notification {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 12px 24px;
+    border-radius: 8px;
+    color: white;
+    font-weight: 600;
+    z-index: 9999; /* Ensures it stays on top of everything else */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    animation: slideUp 0.3s ease-out;
+    text-align: center;
+    max-width: 90%;
+}
+
+/* Different colors based on the type of message */
+.toast-success {
+    background-color: #2ecc71; /* Green */
+}
+
+.toast-error {
+    background-color: #e74c3c; /* Red */
+}
+
+.toast-info {
+    background-color: #3498db; /* Blue */
+}
+
+/* Smooth sliding animation */
+@keyframes slideUp {
+    from {
+        bottom: -50px;
+        opacity: 0;
+    }
+    to {
+        bottom: 30px;
+        opacity: 1;
+    }
+}

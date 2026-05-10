@@ -6,12 +6,13 @@ import { doc, getDoc, updateDoc } from 'firebase/firestore';
 // IMPORTANT: Notice that we imported 'commonDescriptions' here
 import { householdMembers, incomeCategories, expenseCategories, HOUSEHOLD_ID, paymentMethods, commonDescriptions } from '../config.js';
 import DenominationSelector from '../components/DenominationSelector.jsx';
+import { useToast } from '../contexts/ToastContext.jsx';
 
 const EditTransactionPage = () => {
   const { transactionId } = useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
-
+  const { showToast } = useToast();
   // --- NEW: State for Description Mode ---
   const [description, setDescription] = useState('');
   const [descriptionMode, setDescriptionMode] = useState('select'); // tracks if we use the dropdown or text box
@@ -54,7 +55,7 @@ const EditTransactionPage = () => {
         setPaymentMethod(data.paymentMethod || paymentMethods[0]);
         setDenominationsData(data.denominations || null);
       } else {
-        alert("Transaction not found.");
+        showToast("Transaction not found!", "error");
         navigate('/transactions');
       }
       setLoading(false);
@@ -101,7 +102,7 @@ const EditTransactionPage = () => {
       navigate('/transactions');
     } catch (error) {
       console.error("Error updating document: ", error);
-      alert("Fehler beim Aktualisieren der Transaktion.");
+      showToast("Fehler beim Aktualisieren der Transaktion.", "error");
       setIsSubmitting(false);
     }
   };
